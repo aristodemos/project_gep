@@ -1,6 +1,9 @@
 #$ ./manage.py shell < myscript.py
-from loz_lol.models import Part, PartList
+from loz_lol.models import *
 import csv, sys
+import input_retirements
+
+#input_retirements.main()
 
 filename = 'parts_desc.csv'
 input_data = open(filename, 'rU')
@@ -46,7 +49,6 @@ with input_data as f:
 				part_position			=row[6],
 				#lifetime=row[3]		
 				)
-		#for lifetimes
-
 	except csv.Error as e:
 		sys.exit('file %s, line %d: %s' % (filename, reader.line_num, e))
+

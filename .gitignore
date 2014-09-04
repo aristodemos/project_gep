@@ -1,0 +1,6 @@
+*.pyc
+gep_db/loz_lol/migrations/0002_auto__add_part__add_unique_part_part_number_part_serial__add_aircraft.py
+gep_db/loz_lol/migrations/0003_auto__add_field_part_part_description.py
+gep_db/loz_lol/migrations/0004_auto__add_lifetime_limit.py
+gep_db/loz_lol/migrations/0005_auto__add_partlist__del_field_part_part_description__chg_field_part_pa.py
+gep_db/loz_lol/migrations/0006_auto__add_field_part_part_description.py
