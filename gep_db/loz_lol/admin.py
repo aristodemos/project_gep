@@ -20,7 +20,7 @@ class PartAdmin(admin.ModelAdmin):
 		return out
 
 	#read_only_fields= ('part_description',)
-	list_display = ('part_description', 'part_number', 'part_serial', 'part_location', 'part_tot_life', 'lifetime')
+	list_display = ('part_description', 'part_number', 'part_serial', 'part_location', 'part_remaining_life', 'lifetime')
 	list_filter =('part_location',)
 	search_fields = ['part_number__part_number', 'part_number__part_description']
 

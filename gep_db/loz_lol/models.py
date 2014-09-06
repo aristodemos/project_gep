@@ -1,5 +1,6 @@
 from django.db import models
 from django.forms import ModelForm
+from datetime import datetime, timedelta
 
 # Create your models here.
 class Aircraft(models.Model):
@@ -12,7 +13,7 @@ class Aircraft(models.Model):
 
 	def __str__(self):              # __unicode__ on Python 2
 		return str(self.ac_marks)
-
+'''
 class LifetimeManager(models.Manager):
 	def lifetime_description(self):
 		from django.db import connection
@@ -28,7 +29,7 @@ class LifetimeManager(models.Manager):
 			print row
 			result_list.append(row)
 		return result_list
-
+'''
 class Lifetime_Limit(models.Model):
 	DISCARD = 'DS'
 	OVERHAUL = 'OH'
@@ -109,17 +110,34 @@ class Part(models.Model):
 	part_last_in_date		= models.DateField(auto_now=False, auto_now_add=False, null = True, blank = True)
 	part_last_rem_date		= models.DateField(auto_now=False, auto_now_add=False, null = True, blank = True)
 
+	def part_remaining_life(self):
+		lf = self.part_number.lifetime.values_list('limit_flight_hours', 'limit_landings', 'limit_calendar_years', 'limit_calendar_months', 'limit_calendar_days')
+		lf_type = self.part_number.lifetime.values('limit_type')
+		output = ''
+		if len(lf_type) > 0:
+			if lf[0][0] > 0:
+				output = "FH: "+ str(lf[0][0] - int(self.part_tot_flight_hours))
+			if lf[0][1] > 0:
+				output +=" Landings: "+ str(lf[0][1] - self.part_tot_landings)
+			if lf[0][2]>0 or lf[0][3]>0 or lf[0][4]>0:
+				days_delta = lf[0][2]*365 + lf[0][3]*30 + lf[0][4] - self.part_tot_life
+				date_out = datetime.now()+timedelta(days=days_delta)
+				output += " Exp. Date: " + str(date_out.strftime("%d/%m/%Y")) 
+		return output
+		#return lf.values('limit_flight_hours') 
+		#- self.part_tot_flight_hours
+
 	def __unicode__(self):              # __unicode__ on Python 2
 		return unicode(self.part_number)
 
 	def filterOnDescription(self):
 		return Part.objects.values('part_description').distinct()
 
-	'''
-	class Meta:
-		unique_together = (('part_number', 'part_serial'),)
-		#ordering = ('part_description',)
-	'''
+	
+	#class Meta:
+		#unique_together = (('part_number', 'part_serial'),)
+		#ordering = ('part_remaining_life',)
+	
 
 #Forms
 '''
