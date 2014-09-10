@@ -42,11 +42,11 @@ class Lifetime_Limit(models.Model):
 		(RETIREMENT, 'Retirement'),
 	)
 	limit_type				= models.CharField(max_length=2, choices=LIFETIME_TYPE_CHOICES, default=FLIGHTHOURS)
-	limit_calendar_years	= models.PositiveIntegerField(null = True, blank = True)
-	limit_calendar_months	= models.PositiveIntegerField(null = True, blank = True)
-	limit_calendar_days		= models.PositiveIntegerField(null = True, blank = True)
-	limit_flight_hours		= models.PositiveIntegerField(null = True, blank = True)
-	limit_landings			= models.PositiveIntegerField(null = True, blank = True)
+	limit_calendar_years	= models.PositiveIntegerField(default=0)
+	limit_calendar_months	= models.PositiveIntegerField(default=0)
+	limit_calendar_days		= models.PositiveIntegerField(default=0)
+	limit_flight_hours		= models.PositiveIntegerField(default=0)
+	limit_landings			= models.PositiveIntegerField(default=0)
 	
 	#objects 				= LifetimeManager()
 	def lifetime_desc(self):
@@ -75,18 +75,22 @@ class Lifetime_Limit(models.Model):
 		#+" "+str(self.limit_calendar_months)+" M"+" "+str(self.limit_calendar_days)+" D")
 		return unicode(descsription_to_return)
 	def __unicode__(self):
-		return self.get_limit_type_display()
+		#return self.get_limit_type_display()
+		return self.lifetime_desc()
 
 class PartList(models.Model):
 	part_number			= models.CharField(max_length = 15, primary_key = True)
 	part_description	= models.CharField(max_length = 30, null=True)
 	part_ata_chapter	= models.CharField(max_length = 5, blank=True)
-	lifetime			= models.ManyToManyField(Lifetime_Limit, blank=True, related_name='part_life')
+	lifetime			= models.ManyToManyField(Lifetime_Limit, blank=True, through='Part_Life')
 
 	def __unicode__(self):
 		#return unicode(self.part_description +" "+ self.part_number)
 		return unicode(self.part_number)
 	
+class Part_Life(models.Model):
+	part_number 	= models.ForeignKey(PartList)
+	lifetime 		= models.ForeignKey(Lifetime_Limit)
 
 class Part(models.Model):
 	#part_description	= models.CharField(max_length = 30, null=True, blank=True)
@@ -115,14 +119,21 @@ class Part(models.Model):
 		lf_type = self.part_number.lifetime.values('limit_type')
 		output = ''
 		if len(lf_type) > 0:
+
 			if lf[0][0] > 0:
-				output = "FH: "+ str(lf[0][0] - int(self.part_tot_flight_hours))
+				output += "FH: "+ str(lf[0][0] - int(self.part_tot_flight_hours))
 			if lf[0][1] > 0:
 				output +=" Landings: "+ str(lf[0][1] - self.part_tot_landings)
 			if lf[0][2]>0 or lf[0][3]>0 or lf[0][4]>0:
 				days_delta = lf[0][2]*365 + lf[0][3]*30 + lf[0][4] - self.part_tot_life
 				date_out = datetime.now()+timedelta(days=days_delta)
 				output += " Exp. Date: " + str(date_out.strftime("%d/%m/%Y")) 
+		if len(lf_type) >1:
+			if lf[1][2]>0 or lf[1][3]>0 or lf[1][4]>0:
+				days_delta = lf[1][2]*365 + lf[1][3]*30 + lf[1][4] - self.part_tot_life
+				date_out = datetime.now()+timedelta(days=days_delta)
+				output += " Exp. Date: " + str(date_out.strftime("%d/%m/%Y")) 
+
 		return output
 		#return lf.values('limit_flight_hours') 
 		#- self.part_tot_flight_hours
