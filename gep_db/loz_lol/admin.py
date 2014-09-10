@@ -1,9 +1,8 @@
 from django.contrib import admin
+import datetime as dd
 
 #from loz_lol.models import Aircraft, PartList, Lifetime_Limit
 from loz_lol.models import *
-
-class ExpiringThisYear()
 	
 class PartInline(admin.TabularInline):
 	model = Part
@@ -35,10 +34,22 @@ class PartAdmin(admin.ModelAdmin):
 		#return obj.part_number.lifetime.values_list('limit_type')
 		return out
 
-	#read_only_fields= ('part_description',)
-	list_display = ('part_description', 'part_number', 'part_serial', 'part_location', 'part_remaining_life', 'lifetime')
-	list_filter =('part_location', 'ExpiringThisYear')
-	search_fields = ['part_number__part_number', 'part_number__part_description']
+	def expiry_date(self, obj):
+		part_lifes = Part_Life.objects.filter(part_number=obj.part_number)
+		days_to_live = []
+		for life in part_lifes:
+			days_to_live.append(life.lifetime.limit_calendar_years*365 + life.lifetime.limit_calendar_months*30 + life.lifetime.limit_calendar_days- obj.part_tot_life)
+		if len(days_to_live) > 0:
+			today = dd.date.today()
+			return today + timedelta(min(days_to_live))
+		else:
+			return ''
+
+	list_display = ('part_description', 'part_number', 'part_serial', 'part_location', 'part_remaining_life', 'lifetime', 'expiry_date')
+	list_filter =('part_location', )
+	search_fields = ['part_number__part_number', 'part_number__part_description',]
+	
+
 
 class PartListAdmin(admin.ModelAdmin):
 	def lifetime_it(self, obj):
@@ -47,12 +58,12 @@ class PartListAdmin(admin.ModelAdmin):
 			 out += " "+str(i)[3:5]
 		return out
 
-		_meta
+		#_meta
 
 	list_display 		= ('part_description', 'part_number', 'lifetime_it')
 	search_fields 		= ['part_number', 'part_description', ]
 	list_filter 		= ('lifetime__limit_type',)
-	inlines				=[LifeInline,]
+	inlines				=[LifeInline, PartInline]
 	
 		
 class PartsInline(admin.StackedInline):

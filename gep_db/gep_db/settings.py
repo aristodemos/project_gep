@@ -38,6 +38,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'south',
     'loz_lol',
+    'ef421',
 )
 
 MIDDLEWARE_CLASSES = (
