@@ -1,9 +1,10 @@
+#/home/pafi/.virtualenvs/test_gep_db/lib/python2.7/site-packages/django/contrib/admin/templates/admin/
 from django.contrib import admin
 import datetime as dd
 
 #from loz_lol.models import Aircraft, PartList, Lifetime_Limit
 from loz_lol.models import *
-	
+
 class PartInline(admin.TabularInline):
 	model = Part
 	#list_display = ('part_number', 'part_serial')
