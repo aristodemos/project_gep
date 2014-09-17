@@ -5,6 +5,10 @@ from loz_lol.models import Part, PartList, Part_Life, Lifetime_Limit, Aircraft
 
 class remove_item(models.Model):
 	from_aircraft		= models.ForeignKey(Aircraft)
+	#################################################
+	from_ac_hours		= models.FloatField()
+	from_ac_landings	= models.PositiveIntegerField()
+	#################################################
 	part 				= models.ForeignKey(Part)
 	reason_of_removal	= models.CharField(max_length = 100)
 	date				= models.DateField(auto_now=False, auto_now_add=False, null = True, blank = True)
@@ -12,6 +16,9 @@ class remove_item(models.Model):
 class install_item(models.Model):
 	to_aircraft		= models.ForeignKey(Aircraft)
 	part 			= models.ForeignKey(Part)
+	################################################
+	to_ac_hours		= models.FloatField()
+	to_ac_landings	= models.PositiveIntegerField()
 	#part source: MEYP, Aircraft, MAEP
 	part_source		= models.CharField(max_length = 5)
 	date 			= models.DateField(auto_now=False, auto_now_add=False, null = True, blank = True)

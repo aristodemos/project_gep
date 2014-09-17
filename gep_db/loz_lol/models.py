@@ -6,9 +6,9 @@ from datetime import datetime, timedelta
 class Aircraft(models.Model):
 	ac_type			= models.CharField(max_length = 10)
 	ac_sn			= models.PositiveIntegerField()
-	ac_marks		= models.PositiveIntegerField()
+	ac_marks		= models.CharField(max_length = 5)
 	#Flight Hours format 00:00 or 00.00
-	ac_flight_hours = models.CharField(max_length = 8)
+	ac_flight_hours = models.FloatField()
 	ac_landings		= models.PositiveIntegerField()
 
 	def __str__(self):              # __unicode__ on Python 2
