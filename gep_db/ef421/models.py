@@ -1,3 +1,4 @@
+#ef421 models.py
 from django.db import models
 from loz_lol.models import Part, PartList, Part_Life, Lifetime_Limit, Aircraft
 # Create your models here.

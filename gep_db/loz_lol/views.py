@@ -1,6 +1,11 @@
-from django.shortcuts import render
-from django.http import HttpResponse
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect, HttpResponse
+from django.shortcuts import get_object_or_404, render
+
 from loz_lol.models import Part, PartList
+from ef421.models import *
+
+
 
 def index(request):
     #return HttpResponse("AW139.")

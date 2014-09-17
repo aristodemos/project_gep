@@ -1,5 +1,7 @@
 #forms.py
 from django import forms
+from ef421.models import *
+from django.forms.models import inlineformset_factory
 
 class MyForm(forms.Form):
 	aircraft 			= forms.CharField()

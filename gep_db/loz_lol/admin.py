@@ -22,6 +22,17 @@ class LifeInline(admin.TabularInline):
 	limit_type.short_description = 'Limit Type'
 	limit_desc.short_description = 'Years'
 
+#Adding actions to PartAdmin Model
+def Remove_Items(modeladmin, request, queryset):
+	#queryset.update(part_location='Store', part_is_installed=False, part_last_rem_date=datetime.today(), part_position="n/a")
+	for obj in queryset:
+		obj.part_location='Store'
+		obj.part_is_installed=False
+		obj.part_last_rem_date=datetime.today()
+		obj.part_position="n/a"
+		obj.save()
+
+	Remove_Items.short_description = 'Remove selected parts from Aircraft'
 
 class PartAdmin(admin.ModelAdmin):
 	
@@ -49,6 +60,7 @@ class PartAdmin(admin.ModelAdmin):
 	list_display = ('part_description', 'part_number', 'part_serial', 'part_location', 'part_remaining_life', 'lifetime', 'expiry_date')
 	list_filter =('part_location', )
 	search_fields = ['part_number__part_number', 'part_number__part_description',]
+	actions = [Remove_Items]
 	
 
 
