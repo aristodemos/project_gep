@@ -7,8 +7,8 @@ class Aircraft(models.Model):
 	ac_type			= models.CharField(max_length = 10)
 	ac_sn			= models.PositiveIntegerField()
 	ac_marks		= models.PositiveIntegerField()
-	#Flight Hours format 00:00 or 00.00
-	ac_flight_hours = models.CharField(max_length = 8)
+	#Flight Hours PositiveInteger in minutes
+	ac_flight_hours = models.PositiveIntegerField()
 	ac_landings		= models.PositiveIntegerField()
 
 	def __str__(self):              # __unicode__ on Python 2
@@ -105,15 +105,17 @@ class Part(models.Model):
 
 
 	part_location		= models.CharField(max_length = 5)
-	#Flight Hours format 00:00 or 00.00
-	part_tot_flight_hours	= models.CharField(max_length = 8)
+	#Flight Hours PositiveInteger in Minutes!
+	part_tot_flight_hours	= models.PositiveIntegerField()
 	part_tot_landings		= models.PositiveIntegerField()
 	#Life in Days
 	part_tot_life			= models.PositiveIntegerField()
 
-	part_last_in_date		= models.DateField(auto_now=False, auto_now_add=False, null = True, blank = True)
-	part_last_rem_date		= models.DateField(auto_now=False, auto_now_add=False, null = True, blank = True)
-
+	# +++++++++++++++++++++++++++++++DateTimeField++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	part_last_in_date		= models.DateTimeField(auto_now=False, auto_now_add=False, null = True, blank = True)#++
+	# +++++++++++++++++++++++++++++++DateTimeField++++++++++++++                                             #++
+	part_last_rem_date		= models.DateTimeField(auto_now=False, auto_now_add=False, null = True, blank = True)#++
+	#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	def part_remaining_life(self):
 		lf = self.part_number.lifetime.values_list('limit_flight_hours', 'limit_landings', 'limit_calendar_years', 'limit_calendar_months', 'limit_calendar_days')
 		lf_type = self.part_number.lifetime.values('limit_type')
