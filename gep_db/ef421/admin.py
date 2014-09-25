@@ -15,19 +15,19 @@ def delete_model(modeladmin, request, queryset):
 
 
 class FormaPtisisAdmin(admin.ModelAdmin):
-    def get_actions(self, request):
+	form = formaPtisisModelForm
+	def get_actions(self, request):
 		#Disable delete
 		actions = super(FormaPtisisAdmin, self).get_actions(request)
 		del actions['delete_selected']
 		return actions
 
-    fieldsets = [
-        (None,               {'fields': ['aircraft', 'flight_hours_today', 'landings_today']}),
-        ('Penalties', {'fields': ['hoist_lifts_main', 'hoist_lifts_sec', 'cat_a', 'start_stop', 'cargo_cycles', 'above_6400']}),
-    ]
-    actions = [delete_model]
-    list_filter =('aircraft',)
-    list_display = ('aircraft','date', 'flight_hours_today', 'landings_today')
+	fieldsets = [       (None,               {'fields': ['aircraft', 'flight_hours_today', 'landings_today', 'test']}),
+		('Penalties', {'fields': ['hoist_lifts_main', 'hoist_lifts_sec', 'cat_a', 'start_stop', 'cargo_cycles', 'above_6400']}),
+	]
+	actions = [delete_model]
+	list_filter =('aircraft',)
+	list_display = ('aircraft','date', 'flight_hours_today', 'landings_today')
 
 
 admin.site.register(remove_item)

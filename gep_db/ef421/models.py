@@ -1,6 +1,7 @@
 #ef421 models.py
 from django.db import models
 from loz_lol.models import Part, PartList, Part_Life, Lifetime_Limit, Aircraft
+from django import forms
 # Create your models here.
 
 class remove_item(models.Model):
@@ -32,7 +33,7 @@ class formaPtisis(models.Model):
 	#flight hours is a positive integer in minutes
 	flight_hours_today	= models.PositiveIntegerField()
 	landings_today		= models.PositiveIntegerField()
-	
+
 	#PENALTIES
 		#hoist lifts
 	hoist_lifts_main	= models.PositiveIntegerField(null = True, blank = True)
@@ -57,3 +58,12 @@ class formaPtisis(models.Model):
 	def __str__(self):              # __unicode__ on Python 2
 		return str(self.aircraft) + " "+str(self.date)
 
+class formaPtisisModelForm(forms.ModelForm):
+	test = forms.IntegerField()
+	class Meta:
+		model = formaPtisis
+		fields = [ 'flight_hours_today', 'landings_today', 'test']
+	def save(self, commit=True):
+		test = self.cleaned_data.get('test', None)
+		self.instance.flight_hours_today = self.instance.flight_hours_today*60 + test
+		return super(formaPtisisModelForm, self).save(commit=commit)
