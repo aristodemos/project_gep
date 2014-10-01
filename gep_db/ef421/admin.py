@@ -38,16 +38,14 @@ class FormaPtisisAdmin(admin.ModelAdmin):
 		del actions['delete_selected']
 		return actions
 
-	fieldsets = [       (None,               {'fields': ['aircraft', 'flight_hours_today', 'landings_today', 'test']}),
+	fieldsets = [       (None,               {'fields': ['aircraft', 'flight_hours_today', 'flight_minutes_today', 'landings_today']}),
 		('Penalties', {'fields': ['hoist_lifts_main', 'hoist_lifts_sec', 'cat_a', 'start_stop', 'cargo_cycles', 'above_6400']}),
 	]
 	actions = [delete_model]
 	list_filter =('aircraft',)
 	list_display = ('aircraft','date', 'display_flight_hours', 'landings_today')
 
-
-admin.site.register(remove_item)
-admin.site.register(install_item)
+admin.site.register(item_movement)
 admin.site.register(formaPtisis, FormaPtisisAdmin)
 
 

@@ -10,6 +10,7 @@ from django.core.context_processors import csrf
 
 #from loz_lol.models import Aircraft, PartList, Lifetime_Limit
 from loz_lol.models import *
+from ef421.models import item_movement
 
 class PartInline(admin.TabularInline):
 	model = Part
@@ -30,10 +31,16 @@ class LifeInline(admin.TabularInline):
 
 #Adding actions to PartAdmin Model
 
-
+'''
 def Remove_Items(modeladmin, request, queryset):
 	#queryset.update(part_location='Store', part_is_installed=False, part_last_rem_date=datetime.today(), part_position="n/a")
 	for obj in queryset:
+		ac = Aircraft.objects.get(ac_marks=obj.part_location)
+		item_removed = item_movement(move_type='RM', rel_aircraft=ac, rel_ac_hours=ac.ac_flight_hours, rel_ac_landings=ac.ac_landings, part=obj)
+		item_removed.save()
+		###################
+		#Update Part Total Hours & Landings
+		###################
 		obj.part_location='Store'
 		obj.part_is_installed=False
 		obj.part_last_rem_date=datetime.today()
@@ -41,7 +48,7 @@ def Remove_Items(modeladmin, request, queryset):
 		obj.save()
 
 	Remove_Items.short_description = 'Remove selected parts from Aircraft'
-
+'''
 class PartAdmin(admin.ModelAdmin):
 	def part_description(self, obj):
 		return obj.part_number.part_description
@@ -67,19 +74,58 @@ class PartAdmin(admin.ModelAdmin):
 	class InstallItemsForm(forms.Form):
 		_selected_action 	= forms.CharField(widget=forms.MultipleHiddenInput)
 		aircraft 			= forms.ModelChoiceField(Aircraft.objects, empty_label='None aircraft selected')
+		part_source			= forms.CharField(max_length=100)
+
+	class RemoveItemsForm(forms.Form):
+		_selected_action 	= forms.CharField(widget=forms.MultipleHiddenInput)
+		reason_of_removal	= forms.CharField(max_length=100)
+
+	def Remove_Items(self, request, queryset):
+		form = None
+		if 'apply' in request.POST:
+			form = self.RemoveItemsForm(request.POST)
+			if form.is_valid():
+				comment_frm = form.cleaned_data['reason_of_removal']
+				count = 0
+				for part in queryset:
+					aircraft = Aircraft.objects.get(ac_marks=part.part_location)
+					part.part_is_installed = False
+					part.part_location = "Store"
+					part.part_last_rem_date = datetime.today()
+					part.save()
+					###################
+					#Update Part Total Hours & Landings
+					###################
+					removed_part = item_movement(move_type='RM', rel_aircraft=aircraft, part=part, rel_ac_hours=aircraft.ac_flight_hours, rel_ac_landings=aircraft.ac_landings, comments = "reason of removal: "+comment_frm)
+					removed_part.save()
+					count += 1
+				self.message_user(request, "Successfully removed %d parts from Aircraft." % (count))
+				return HttpResponseRedirect(request.get_full_path())
+		if not form:
+			form = self.RemoveItemsForm(initial={'_selected_action':request.POST.getlist(admin.ACTION_CHECKBOX_NAME)})
+
+		return render_to_response('admin/multi_removal_form.html', {'parts':queryset, 'removal_form': form,}, context_instance=RequestContext(request))
+
+
 
 	def Install_Items(self, request, queryset):
 		form = None
 		if 'apply' in request.POST:
 			form = self.InstallItemsForm(request.POST)
 			if form.is_valid():
-				aircraft = form.cleaned_data['aircraft']
+				aircraft 	= form.cleaned_data['aircraft']
+				comment_frm = form.cleaned_data['part_source']
 				count = 0
 				for part in queryset:
 					part.part_is_installed = True
 					part.part_location = aircraft.ac_marks
 					part.part_last_in_date = datetime.today()
 					part.save()
+					###################
+					#Update Part Total Hours & Landings
+					###################
+					installed_part = item_movement(move_type='IN', rel_aircraft=aircraft, part=part, rel_ac_hours=aircraft.ac_flight_hours, rel_ac_landings=aircraft.ac_landings, comments = "part source: "+comment_frm)
+					installed_part.save()
 					count += 1
 				self.message_user(request, "Successfully added %d parts to Aircraft." % (count))
 				return HttpResponseRedirect(request.get_full_path())

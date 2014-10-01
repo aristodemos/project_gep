@@ -1,0 +1,25 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+
+<p>Remove Parts:</p>
+
+<form action="" method="post">{% csrf_token %}
+
+    {{ removal_form }}
+
+    <p>These parts will be removed from their Aircraft:</p>
+    {% for part in parts %}
+    <h3>
+            {{ part.part_number }}
+            {{ part.part_number.part_description }}
+            <a href="{{ part.id }}" target="_blank">
+            {{ part.part_serial }}</a>
+    </h3>
+    {% endfor %}
+
+    <input type="hidden" name="action" value="Remove_Items" />
+    <input type="submit" name="apply" value="Apply" />
+</form>
+
+{% endblock %}

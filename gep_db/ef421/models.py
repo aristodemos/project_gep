@@ -5,28 +5,21 @@ from django import forms
 from django.db.models import F
 # Create your models here.
 
-class remove_item(models.Model):
-	from_aircraft		= models.ForeignKey(Aircraft)
-	#################################################
-	from_ac_hours		= models.FloatField()
-	from_ac_landings	= models.PositiveIntegerField()
-	#################################################
+class item_movement(models.Model):
+	REMOVAL = 'RM'
+	INSTALLATION = 'IN'
+	MOVEMENT_CHOICE = (
+		(REMOVAL, 'Removal'),
+		(INSTALLATION, 'Installation'),
+	)
+	move_type			= models.CharField(max_length=2, choices=MOVEMENT_CHOICE, null=False, blank=False)
+	rel_aircraft		= models.ForeignKey(Aircraft)
+	rel_ac_hours		= models.PositiveIntegerField()
+	rel_ac_landings		= models.PositiveIntegerField()
 	part 				= models.ForeignKey(Part)
-	reason_of_removal	= models.CharField(max_length = 100)
-	date				= models.DateField(auto_now=False, auto_now_add=False, null = True, blank = True)
+	comments			= models.CharField(max_length = 100)
+	date				= models.DateField(auto_now=True, auto_now_add=True, null = True, blank = True)
 
-class install_item(models.Model):
-	to_aircraft		= models.ForeignKey(Aircraft)
-	part 			= models.ForeignKey(Part)
-	################################################
-	to_ac_hours		= models.FloatField()
-	to_ac_landings	= models.PositiveIntegerField()
-	#part source: MEYP, Aircraft, MAEP
-	part_source		= models.CharField(max_length = 5)
-	date 			= models.DateField(auto_now=False, auto_now_add=False, null = True, blank = True)
-
-class ekkremousesParatiriseis:
-	pass
 
 class formaPtisis(models.Model):
 	aircraft 			= models.ForeignKey(Aircraft)
@@ -63,13 +56,13 @@ class formaPtisis(models.Model):
 		return str(self.flight_hours_today/60)+'.'+str(self.flight_hours_today%60)
 
 class formaPtisisModelForm(forms.ModelForm):
-	test = forms.IntegerField()
+	flight_minutes_today = forms.IntegerField()
 	class Meta:
 		model = formaPtisis
-		fields = [ 'flight_hours_today', 'landings_today', 'test']
+		fields = [ 'flight_hours_today', 'flight_minutes_today', 'landings_today']
 	def save(self, commit=True):
-		test = self.cleaned_data.get('test', None)
-		self.instance.flight_hours_today = self.instance.flight_hours_today*60 + test
+		flight_minutes_today = self.cleaned_data.get('flight_minutes_today', None)
+		self.instance.flight_hours_today = self.instance.flight_hours_today*60 + flight_minutes_today
 		#############################################################
 		#				PENALTIES									#
 		'''

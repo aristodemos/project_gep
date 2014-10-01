@@ -8,48 +8,39 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'remove_item'
-        db.create_table(u'ef421_remove_item', (
+        # Adding model 'item_movement'
+        db.create_table(u'ef421_item_movement', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('from_aircraft', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['loz_lol.Aircraft'])),
+            ('move_type', self.gf('django.db.models.fields.CharField')(max_length=2)),
+            ('rel_aircraft', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['loz_lol.Aircraft'])),
+            ('rel_ac_hours', self.gf('django.db.models.fields.PositiveIntegerField')()),
+            ('rel_ac_landings', self.gf('django.db.models.fields.PositiveIntegerField')()),
             ('part', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['loz_lol.Part'])),
-            ('reason_of_removal', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('date', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
+            ('comments', self.gf('django.db.models.fields.CharField')(max_length=100)),
+            ('date', self.gf('django.db.models.fields.DateField')(auto_now=True, auto_now_add=True, null=True, blank=True)),
         ))
-        db.send_create_signal(u'ef421', ['remove_item'])
-
-        # Adding model 'install_item'
-        db.create_table(u'ef421_install_item', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('to_aircraft', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['loz_lol.Aircraft'])),
-            ('part', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['loz_lol.Part'])),
-            ('part_source', self.gf('django.db.models.fields.CharField')(max_length=5)),
-            ('date', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-        ))
-        db.send_create_signal(u'ef421', ['install_item'])
+        db.send_create_signal(u'ef421', ['item_movement'])
 
         # Adding model 'formaPtisis'
         db.create_table(u'ef421_formaptisis', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('aircraft', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['loz_lol.Aircraft'])),
+            ('date', self.gf('django.db.models.fields.DateField')(auto_now=True, auto_now_add=True, null=True, blank=True)),
             ('flight_hours_today', self.gf('django.db.models.fields.PositiveIntegerField')()),
             ('landings_today', self.gf('django.db.models.fields.PositiveIntegerField')()),
-            ('hoist_lifts_main', self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True)),
-            ('hoist_lifts_sec', self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True)),
-            ('start_stop', self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True)),
-            ('above_6400', self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True)),
-            ('cat_a', self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True)),
-            ('cargo_cycles', self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True)),
+            ('hoist_lifts_main', self.gf('django.db.models.fields.PositiveIntegerField')(default=0, null=True, blank=True)),
+            ('hoist_lifts_sec', self.gf('django.db.models.fields.PositiveIntegerField')(default=0, null=True, blank=True)),
+            ('start_stop', self.gf('django.db.models.fields.PositiveIntegerField')(default=0, null=True, blank=True)),
+            ('above_6400', self.gf('django.db.models.fields.PositiveIntegerField')(default=0, null=True, blank=True)),
+            ('cat_a', self.gf('django.db.models.fields.PositiveIntegerField')(default=0, null=True, blank=True)),
+            ('cargo_cycles', self.gf('django.db.models.fields.PositiveIntegerField')(default=0, null=True, blank=True)),
         ))
         db.send_create_signal(u'ef421', ['formaPtisis'])
 
 
     def backwards(self, orm):
-        # Deleting model 'remove_item'
-        db.delete_table(u'ef421_remove_item')
-
-        # Deleting model 'install_item'
-        db.delete_table(u'ef421_install_item')
+        # Deleting model 'item_movement'
+        db.delete_table(u'ef421_item_movement')
 
         # Deleting model 'formaPtisis'
         db.delete_table(u'ef421_formaptisis')
@@ -58,32 +49,28 @@ class Migration(SchemaMigration):
     models = {
         u'ef421.formaptisis': {
             'Meta': {'object_name': 'formaPtisis'},
-            'above_6400': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'above_6400': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0', 'null': 'True', 'blank': 'True'}),
             'aircraft': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['loz_lol.Aircraft']"}),
-            'cargo_cycles': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'cat_a': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'cargo_cycles': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0', 'null': 'True', 'blank': 'True'}),
+            'cat_a': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0', 'null': 'True', 'blank': 'True'}),
+            'date': ('django.db.models.fields.DateField', [], {'auto_now': 'True', 'auto_now_add': 'True', 'null': 'True', 'blank': 'True'}),
             'flight_hours_today': ('django.db.models.fields.PositiveIntegerField', [], {}),
-            'hoist_lifts_main': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'hoist_lifts_sec': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'hoist_lifts_main': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0', 'null': 'True', 'blank': 'True'}),
+            'hoist_lifts_sec': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0', 'null': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'landings_today': ('django.db.models.fields.PositiveIntegerField', [], {}),
-            'start_stop': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'})
+            'start_stop': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0', 'null': 'True', 'blank': 'True'})
         },
-        u'ef421.install_item': {
-            'Meta': {'object_name': 'install_item'},
-            'date': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
+        u'ef421.item_movement': {
+            'Meta': {'object_name': 'item_movement'},
+            'comments': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'date': ('django.db.models.fields.DateField', [], {'auto_now': 'True', 'auto_now_add': 'True', 'null': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'move_type': ('django.db.models.fields.CharField', [], {'max_length': '2'}),
             'part': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['loz_lol.Part']"}),
-            'part_source': ('django.db.models.fields.CharField', [], {'max_length': '5'}),
-            'to_aircraft': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['loz_lol.Aircraft']"})
-        },
-        u'ef421.remove_item': {
-            'Meta': {'object_name': 'remove_item'},
-            'date': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
-            'from_aircraft': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['loz_lol.Aircraft']"}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'part': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['loz_lol.Part']"}),
-            'reason_of_removal': ('django.db.models.fields.CharField', [], {'max_length': '100'})
+            'rel_ac_hours': ('django.db.models.fields.PositiveIntegerField', [], {}),
+            'rel_ac_landings': ('django.db.models.fields.PositiveIntegerField', [], {}),
+            'rel_aircraft': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['loz_lol.Aircraft']"})
         },
         u'loz_lol.aircraft': {
             'Meta': {'object_name': 'Aircraft'},
