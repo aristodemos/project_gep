@@ -6,3 +6,14 @@ gep_db/loz_lol/migrations/0003_auto__add_field_part_part_description.py
 gep_db/loz_lol/migrations/0004_auto__add_lifetime_limit.py
 gep_db/loz_lol/migrations/0005_auto__add_partlist__del_field_part_part_description__chg_field_part_pa.py
 gep_db/loz_lol/migrations/0006_auto__add_field_part_part_description.py
+gep_db/data_input/inrt.py
+gep_db/data_input/old_db.sqlite3
+gep_db/data_input/sers701.csv
+gep_db/data_input/sers703.csv
+gep_db/data_input/testInput.csv
+gep_db/data_input/testInput.py
+gep_db/loz_lol/models.py.BACKUP.2851.py
+gep_db/loz_lol/models.py.BASE.2851.py
+gep_db/loz_lol/models.py.LOCAL.2851.py
+gep_db/loz_lol/models.py.REMOTE.2851.py
+gep_db/templates/

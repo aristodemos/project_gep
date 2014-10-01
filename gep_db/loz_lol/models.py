@@ -2,6 +2,7 @@ from django.db import models
 from django.forms import ModelForm
 from datetime import datetime, timedelta
 
+
 # Create your models here.
 class Aircraft(models.Model):
 	ac_type			= models.CharField(max_length = 10)
@@ -13,23 +14,10 @@ class Aircraft(models.Model):
 
 	def __str__(self):              # __unicode__ on Python 2
 		return str(self.ac_marks)
-'''
-class LifetimeManager(models.Manager):
-	def lifetime_description(self):
-		from django.db import connection
-		cursor = connection.cursor()
-		cursor.execute(
-				"""
-				SELECT lf.limit_type, lf.limit_calendar_years, lf.limit_flight_hours, lf.limit_landings
-				FROM Lifetime_Limit lf, PartList pl
-				WHERE lf.id = pl.id
-				""")
-		result_list = []
-		for row in cursor.fetchall():
-			print row
-			result_list.append(row)
-		return result_list
-'''
+
+	def display_flight_hours(self):
+		return str(self.ac_flight_hours/60)+'.'+str(self.ac_flight_hours%60)
+
 class Lifetime_Limit(models.Model):
 	DISCARD = 'DS'
 	OVERHAUL = 'OH'
@@ -47,7 +35,7 @@ class Lifetime_Limit(models.Model):
 	limit_calendar_days		= models.PositiveIntegerField(default=0)
 	limit_flight_hours		= models.PositiveIntegerField(default=0)
 	limit_landings			= models.PositiveIntegerField(default=0)
-	
+
 	#objects 				= LifetimeManager()
 	def lifetime_desc(self):
 		descsription_to_return = self.get_limit_type_display()+" "
@@ -87,7 +75,7 @@ class PartList(models.Model):
 	def __unicode__(self):
 		#return unicode(self.part_description +" "+ self.part_number)
 		return unicode(self.part_number)
-	
+
 class Part_Life(models.Model):
 	part_number 	= models.ForeignKey(PartList)
 	lifetime 		= models.ForeignKey(Lifetime_Limit)
@@ -129,15 +117,15 @@ class Part(models.Model):
 			if lf[0][2]>0 or lf[0][3]>0 or lf[0][4]>0:
 				days_delta = lf[0][2]*365 + lf[0][3]*30 + lf[0][4] - self.part_tot_life
 				date_out = datetime.now()+timedelta(days=days_delta)
-				output += " Exp. Date: " + str(date_out.strftime("%d/%m/%Y")) 
+				output += " Exp. Date: " + str(date_out.strftime("%d/%m/%Y"))
 		if len(lf_type) >1:
 			if lf[1][2]>0 or lf[1][3]>0 or lf[1][4]>0:
 				days_delta = lf[1][2]*365 + lf[1][3]*30 + lf[1][4] - self.part_tot_life
 				date_out = datetime.now()+timedelta(days=days_delta)
-				output += " Exp. Date: " + str(date_out.strftime("%d/%m/%Y")) 
+				output += " Exp. Date: " + str(date_out.strftime("%d/%m/%Y"))
 
 		return output
-		#return lf.values('limit_flight_hours') 
+		#return lf.values('limit_flight_hours')
 		#- self.part_tot_flight_hours
 
 	def __unicode__(self):              # __unicode__ on Python 2
@@ -146,20 +134,10 @@ class Part(models.Model):
 	def filterOnDescription(self):
 		return Part.objects.values('part_description').distinct()
 
-	
+
 	#class Meta:
 		#unique_together = (('part_number', 'part_serial'),)
 		#ordering = ('part_remaining_life',)
-	
+
 
 #Forms
-'''
-class AircraftForm(ModelForm):
-	pass
-
-class PartForm(ModelForm):
-	pass
-#We need a formset !!
-class LifetimeLimitForm(ModelForm):
-	pass
-'''

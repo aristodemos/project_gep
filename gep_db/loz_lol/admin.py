@@ -2,7 +2,7 @@
 from django.contrib import admin
 import datetime as dd
 from django import forms
-from django.http import HttpResponse, HttpResponseRedirect 
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.core.context_processors import csrf
@@ -18,13 +18,13 @@ class PartInline(admin.TabularInline):
 class LifeInline(admin.TabularInline):
 	model = Part_Life
 	readonly_fields = ['limit_type', 'limit_desc']
-	
+
 	def limit_type(self, instance):
 		return instance.lifetime.limit_type
 
 	def limit_desc(self, instance):
 		return instance.lifetime.lifetime_desc()
-	
+
 	limit_type.short_description = 'Limit Type'
 	limit_desc.short_description = 'Years'
 
@@ -45,7 +45,7 @@ def Remove_Items(modeladmin, request, queryset):
 class PartAdmin(admin.ModelAdmin):
 	def part_description(self, obj):
 		return obj.part_number.part_description
-	
+
 	def lifetime(self, obj):
 		out = ''
 		for i in obj.part_number.lifetime.values_list('limit_type'):
@@ -63,11 +63,11 @@ class PartAdmin(admin.ModelAdmin):
 			return today + timedelta(min(days_to_live))
 		else:
 			return ''
-	
+
 	class InstallItemsForm(forms.Form):
 		_selected_action 	= forms.CharField(widget=forms.MultipleHiddenInput)
 		aircraft 			= forms.ModelChoiceField(Aircraft.objects, empty_label='None aircraft selected')
-	
+
 	def Install_Items(self, request, queryset):
 		form = None
 		if 'apply' in request.POST:
@@ -83,10 +83,10 @@ class PartAdmin(admin.ModelAdmin):
 					count += 1
 				self.message_user(request, "Successfully added %d parts to Aircraft." % (count))
 				return HttpResponseRedirect(request.get_full_path())
-	
+
 		if not form:
 			form = self.InstallItemsForm(initial={'_selected_action':request.POST.getlist(admin.ACTION_CHECKBOX_NAME)})
-	
+
 		return render_to_response('admin/multi_installation_form.html', {'parts':queryset, 'installation_form': form,}, context_instance=RequestContext(request))
 
 
@@ -94,7 +94,7 @@ class PartAdmin(admin.ModelAdmin):
 	list_filter =('part_location',)
 	search_fields = ['part_number__part_number', 'part_number__part_description',]
 	actions = [Remove_Items, Install_Items]
-	
+
 class PartListAdmin(admin.ModelAdmin):
 	def lifetime_it(self, obj):
 		out = ''
@@ -108,8 +108,8 @@ class PartListAdmin(admin.ModelAdmin):
 	search_fields 		= ['part_number', 'part_description', ]
 	list_filter 		= ('lifetime__limit_type',)
 	inlines				=[LifeInline, PartInline]
-	
-		
+
+
 class PartsInline(admin.StackedInline):
 	model = PartList.lifetime.through
 	extra = 4
@@ -119,7 +119,8 @@ class LifetimeAdmin(admin.ModelAdmin):
 	inlines =[PartsInline,]
 
 class AircraftAdmin(admin.ModelAdmin):
-	list_display = ('ac_marks', 'ac_flight_hours', 'ac_landings', 'ac_sn', 'ac_type')
+	list_display = ('ac_marks', 'display_flight_hours', 'ac_landings', 'ac_flight_hours', 'ac_sn', 'ac_type')
+
 
 # Register your models here.
 admin.site.register(Aircraft, AircraftAdmin)

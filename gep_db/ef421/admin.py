@@ -3,6 +3,7 @@ from django.contrib import admin
 from django import forms
 from ef421.models import *
 from loz_lol.models import Part
+from django.db.models import F
 
 # Register your models here.
 def delete_model(modeladmin, request, queryset):
@@ -11,6 +12,21 @@ def delete_model(modeladmin, request, queryset):
 		aircraft.ac_flight_hours 	-= obj.flight_hours_today
 		aircraft.ac_landings		-= obj.landings_today
 		aircraft.save()
+		##Update install parts when a flight is erased
+		Part.objects.filter(part_location=aircraft.ac_marks).\
+								update(part_tot_landings=F('part_tot_landings')-obj.landings_today,\
+		 								part_tot_flight_hours=F('part_tot_flight_hours')-obj.flight_hours_today)
+		####################
+		'''
+		#SPECIAL CASE FOR PARTS THAT TAKE PENALTIES
+		penalties_today = []
+		penalties_today.append(obj.hoist_lifts_main)
+		penalties_today.append(obj.hoist_lifts_sec)
+		penalties_today.append(obj.cat_a)
+		penalties_today.append(obj.start_stop)
+		penalties_today.append(obj.cargo_cycles)
+		penalties_today.append(obj.above_6400)
+		'''
 		obj.delete()
 
 
@@ -27,7 +43,7 @@ class FormaPtisisAdmin(admin.ModelAdmin):
 	]
 	actions = [delete_model]
 	list_filter =('aircraft',)
-	list_display = ('aircraft','date', 'flight_hours_today', 'landings_today')
+	list_display = ('aircraft','date', 'display_flight_hours', 'landings_today')
 
 
 admin.site.register(remove_item)

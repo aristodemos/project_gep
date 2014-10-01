@@ -2,6 +2,7 @@
 from django.db import models
 from loz_lol.models import Part, PartList, Part_Life, Lifetime_Limit, Aircraft
 from django import forms
+from django.db.models import F
 # Create your models here.
 
 class remove_item(models.Model):
@@ -36,16 +37,16 @@ class formaPtisis(models.Model):
 
 	#PENALTIES
 		#hoist lifts
-	hoist_lifts_main	= models.PositiveIntegerField(null = True, blank = True)
-	hoist_lifts_sec		= models.PositiveIntegerField(null = True, blank = True)
+	hoist_lifts_main	= models.PositiveIntegerField(default = 0, null = True, blank = True)
+	hoist_lifts_sec		= models.PositiveIntegerField(default = 0, null = True, blank = True)
 		#start_stop wind < 17 knots
-	start_stop			= models.PositiveIntegerField(null = True, blank = True)
+	start_stop			= models.PositiveIntegerField(default = 0, null = True, blank = True)
 		#above 6400Kg take off weight
-	above_6400			= models.PositiveIntegerField(null = True, blank = True)
+	above_6400			= models.PositiveIntegerField(default = 0, null = True, blank = True)
 		#cat_a
-	cat_a				= models.PositiveIntegerField(null = True, blank = True)
+	cat_a				= models.PositiveIntegerField(default = 0, null = True, blank = True)
 		#cargo_cycles
-	cargo_cycles		= models.PositiveIntegerField(null = True, blank = True)
+	cargo_cycles		= models.PositiveIntegerField(default = 0, null = True, blank = True)
 
 	def save(self, *args, **kwargs):
 		aircraft = Aircraft.objects.get(pk=self.aircraft.pk)
@@ -58,6 +59,9 @@ class formaPtisis(models.Model):
 	def __str__(self):              # __unicode__ on Python 2
 		return str(self.aircraft) + " "+str(self.date)
 
+	def display_flight_hours(self):
+		return str(self.flight_hours_today/60)+'.'+str(self.flight_hours_today%60)
+
 class formaPtisisModelForm(forms.ModelForm):
 	test = forms.IntegerField()
 	class Meta:
@@ -66,4 +70,16 @@ class formaPtisisModelForm(forms.ModelForm):
 	def save(self, commit=True):
 		test = self.cleaned_data.get('test', None)
 		self.instance.flight_hours_today = self.instance.flight_hours_today*60 + test
+		#############################################################
+		#				PENALTIES									#
+		'''
+		if self.instance.start_stop > 0:
+			part_mr_blade = Part.objects.filter(part_number='3G6210A00131')
+			self.instance.landings_today += 5
+		'''
+		Part.objects.filter(part_location=self.instance.aircraft).\
+										update(part_tot_landings=F('part_tot_landings')+self.instance.landings_today, \
+												part_tot_flight_hours=F('part_tot_flight_hours')+self.instance.flight_hours_today)
+		#															#
+		#############################################################
 		return super(formaPtisisModelForm, self).save(commit=commit)
