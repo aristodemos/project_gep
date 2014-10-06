@@ -30,25 +30,8 @@ class LifeInline(admin.TabularInline):
 	limit_desc.short_description = 'Years'
 
 #Adding actions to PartAdmin Model
+admin.site.disable_action('delete_selected')
 
-'''
-def Remove_Items(modeladmin, request, queryset):
-	#queryset.update(part_location='Store', part_is_installed=False, part_last_rem_date=datetime.today(), part_position="n/a")
-	for obj in queryset:
-		ac = Aircraft.objects.get(ac_marks=obj.part_location)
-		item_removed = item_movement(move_type='RM', rel_aircraft=ac, rel_ac_hours=ac.ac_flight_hours, rel_ac_landings=ac.ac_landings, part=obj)
-		item_removed.save()
-		###################
-		#Update Part Total Hours & Landings
-		###################
-		obj.part_location='Store'
-		obj.part_is_installed=False
-		obj.part_last_rem_date=datetime.today()
-		obj.part_position="n/a"
-		obj.save()
-
-	Remove_Items.short_description = 'Remove selected parts from Aircraft'
-'''
 class PartAdmin(admin.ModelAdmin):
 	def part_description(self, obj):
 		return obj.part_number.part_description
@@ -139,7 +122,7 @@ class PartAdmin(admin.ModelAdmin):
 	list_display = ('part_description', 'part_number', 'part_serial', 'part_location', 'part_remaining_life', 'lifetime', 'expiry_date')
 	list_filter =('part_location',)
 	search_fields = ['part_number__part_number', 'part_number__part_description',]
-	actions = [Remove_Items, Install_Items]
+	actions = ['Remove_Items', 'Install_Items']
 
 class PartListAdmin(admin.ModelAdmin):
 	def lifetime_it(self, obj):

@@ -18,8 +18,8 @@ class item_movement(models.Model):
 	rel_ac_landings		= models.PositiveIntegerField()
 	part 				= models.ForeignKey(Part)
 	comments			= models.CharField(max_length = 100)
-	date				= models.DateField(auto_now=True, auto_now_add=True, null = True, blank = True)
-
+	date				= models.DateField(auto_now_add=True, null = True, blank = True)
+	date.editable = True
 
 class formaPtisis(models.Model):
 	aircraft 			= models.ForeignKey(Aircraft)

@@ -45,7 +45,13 @@ class FormaPtisisAdmin(admin.ModelAdmin):
 	list_filter =('aircraft',)
 	list_display = ('aircraft','date', 'display_flight_hours', 'landings_today')
 
-admin.site.register(item_movement)
+class ItemMoveAdmin(admin.ModelAdmin):
+	def part_desc(self, obj):
+		return obj.part.part_number.part_description
+	list_display = ('date', 'part', 'part_desc', 'move_type', 'comments', 'rel_aircraft')
+	search_fields 		= ['comments', 'part__part_serial']
+
+admin.site.register(item_movement, ItemMoveAdmin)
 admin.site.register(formaPtisis, FormaPtisisAdmin)
 
 

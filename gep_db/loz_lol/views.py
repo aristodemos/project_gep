@@ -1,7 +1,8 @@
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render
-
+from django.template import RequestContext, loader
+import datetime
 from loz_lol.models import Part, PartList
 from ef421.models import item_movement
 
@@ -11,7 +12,7 @@ def index(request):
     #return HttpResponse("AW139.")    "+str(p.id)+"
     all_parts = Part.objects.order_by('-part_number')
     output = "<a href='/admin/'>Go to admin dashboard<a/>"
-    output += ''.join(["<p><a href='"+str(p.id)+"'>"+p.part_number.part_description+"</a></p>" for p in all_parts])
+    output += ''.join(["<p><a href='"+str(p.id)+"'>"+p.part_number.part_description+'  '+str(p.part_number)+' '+str(p.part_serial)+"</a></p>" for p in all_parts])
     return HttpResponse(output)
 
 # Create your views here.
@@ -44,3 +45,16 @@ def detail(request, part_id):
     output +="</ol>"
     output += "<a href='/loz_lol/'>Back to All Parts<a/>"
     return HttpResponse(output)
+
+def current_datetime(request):
+    now = datetime.datetime.now()
+    html = "<html><body><h1>It is now %s.</h1></body></html>" % now
+    return HttpResponse(html)
+
+def all_parts(request):
+    parts = Part.objects.all()
+    template = loader.get_template('loz_lol/allparts.html')
+    context = RequestContext(request, {
+        'all_parts_list':  parts,
+    })
+    return HttpResponse(template.render(context))
