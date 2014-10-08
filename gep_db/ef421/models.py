@@ -30,16 +30,16 @@ class formaPtisis(models.Model):
 
 	#PENALTIES
 		#hoist lifts
-	hoist_lifts_main	= models.PositiveIntegerField(default = 0, null = True, blank = True)
-	hoist_lifts_sec		= models.PositiveIntegerField(default = 0, null = True, blank = True)
+	hoist_lifts_main	= models.PositiveIntegerField(default = 0)
+	hoist_lifts_sec		= models.PositiveIntegerField(default = 0)
 		#start_stop wind < 17 knots
-	start_stop			= models.PositiveIntegerField(default = 0, null = True, blank = True)
+	start_stop			= models.PositiveIntegerField(default = 0)
 		#above 6400Kg take off weight
-	above_6400			= models.PositiveIntegerField(default = 0, null = True, blank = True)
+	above_6400			= models.PositiveIntegerField(default = 0)
 		#cat_a
-	cat_a				= models.PositiveIntegerField(default = 0, null = True, blank = True)
+	cat_a				= models.PositiveIntegerField(default = 0)
 		#cargo_cycles
-	cargo_cycles		= models.PositiveIntegerField(default = 0, null = True, blank = True)
+	cargo_cycles		= models.PositiveIntegerField(default = 0)
 
 	def save(self, *args, **kwargs):
 		aircraft = Aircraft.objects.get(pk=self.aircraft.pk)
@@ -62,15 +62,38 @@ class formaPtisisModelForm(forms.ModelForm):
 		fields = [ 'flight_hours_today', 'flight_minutes_today', 'landings_today']
 	def save(self, commit=True):
 		flight_minutes_today = self.cleaned_data.get('flight_minutes_today', None)
-		self.instance.flight_hours_today = self.instance.flight_hours_today*60 + flight_minutes_today
+		time_today = self.instance.flight_hours_today*60 + flight_minutes_today
+		self.instance.flight_hours_today = time_today
 		#############################################################
 		#				PENALTIES									#
-		'''
-		if self.instance.start_stop > 0:
-			part_mr_blade = Part.objects.filter(part_number='3G6210A00131')
-			self.instance.landings_today += 5
-		'''
-		Part.objects.filter(part_location=self.instance.aircraft).\
+		Part.objects.filter(part_location=self.instance.aircraft, part_is_installed=True, part_number='3G6210A00131').update(part_tot_landings=\
+															F('part_tot_landings')+5*self.instance.start_stop)
+
+		hoist_lift_tot = self.instance.hoist_lifts_main + self.instance.hoist_lifts_sec
+		Part.objects.filter(part_location=self.instance.aircraft, part_is_installed=True, part_number='3G6230A00332').update(part_tot_flight_hours=\
+															F('part_tot_flight_hours')+(0.5*hoist_lift_tot))
+
+		if (self.instance.cargo_cycles > 0):
+			Part.objects.filter(part_location=self.instance.aircraft, part_is_installed=True, part_number='3G6220A00332').update(part_tot_flight_hours=\
+															F('part_tot_flight_hours')+1*self.instance.cargo_cycles)
+			Part.objects.filter(part_location=self.instance.aircraft, part_is_installed=True, part_number='3G6330A00532').update(part_tot_flight_hours=\
+															F('part_tot_flight_hours')+1*self.instance.cargo_cycles)
+			Part.objects.filter(part_location=self.instance.aircraft, part_is_installed=True, part_number='3G6330A00532').update(part_tot_landings=\
+															F('part_tot_landings')+2*self.instance.cargo_cycles)
+			Part.objects.filter(part_location=self.instance.aircraft, part_is_installed=True, part_number='3T6510V00152').update(part_tot_landings=\
+															F('part_tot_landings')+2*self.instance.cargo_cycles)
+			Part.objects.filter(part_location=self.instance.aircraft, part_is_installed=True, part_number='3T6521A07353').update(part_tot_landings=\
+															F('part_tot_landings')+2*self.instance.cargo_cycles)
+			Part.objects.filter(part_location=self.instance.aircraft, part_is_installed=True, part_number='3T6521A05657').update(part_tot_landings=\
+															F('part_tot_landings')+2*self.instance.cargo_cycles)
+
+		if (self.instance.above_6400 > 0):
+			Part.objects.filter(part_location=self.instance.aircraft, part_is_installed=True, part_number='3G5510A03931').update(part_tot_flight_hours=\
+															F('part_tot_flight_hours')-time_today+4.5*self.instance.above_6400)
+			Part.objects.filter(part_location=self.instance.aircraft, part_is_installed=True, part_number='3G6420A00332').update(part_tot_flight_hours=\
+															F('part_tot_flight_hours')-time_today+1.25*self.instance.above_6400)
+
+		Part.objects.filter(part_location=self.instance.aircraft, part_is_installed=True).exclude(part_number='3G2591V01532').\
 										update(part_tot_landings=F('part_tot_landings')+self.instance.landings_today, \
 												part_tot_flight_hours=F('part_tot_flight_hours')+self.instance.flight_hours_today)
 		#															#

@@ -175,6 +175,9 @@ class Part(models.Model):
 	def filterOnDescription(self):
 		return Part.objects.values('part_description').distinct()
 
+	def display_tot_fh(self):
+		return str(self.part_tot_flight_hours/60)+'.'+str(self.part_tot_flight_hours%60)
+
 
 	#class Meta:
 		#unique_together = (('part_number', 'part_serial'),)

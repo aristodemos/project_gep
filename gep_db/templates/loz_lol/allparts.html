@@ -65,7 +65,7 @@
 </div>
 <div id="navi">
     <ul>
-    <li> <a href='/admin/'>Go to admin dashboard<a/> </li>
+    <li> <a href='/admin/'>Go to admin dashboard</a> </li>
     </ul>
 </div>
 <div id="table-wrapper">
@@ -92,7 +92,7 @@
             <td>{{ part.part_number }}</td>
             <td><a href="/loz_lol/{{ part.id }}/">{{ part.part_serial }}</a></td>
             <td>{{ part.part_location}}</td>
-            <td>{{ part.part_tot_flight_hours }}</td>
+            <td>{{ part.display_tot_fh }}</td>
             <td>{{ part.life_limit_tp }}</td>
             <td>{{ part.expected_expiry }}</td>
         </tr>
@@ -134,7 +134,7 @@ $(document).ready(function() {
             if ( d-now < 31600000000 )  {$(nRow).addClass( 'hell' );}
         }
     });
-    new $.fn.dataTable.FixedHeader( table );
+    //new $.fn.dataTable.FixedHeader( table );
 
     var select = $('<select><option value=""></option></select>')
         .insertAfter( $('.loc').empty() )
