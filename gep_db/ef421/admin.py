@@ -35,7 +35,7 @@ class FormaPtisisAdmin(admin.ModelAdmin):
 	def get_actions(self, request):
 		#Disable delete
 		actions = super(FormaPtisisAdmin, self).get_actions(request)
-		del actions['delete_selected']
+		del actions['delete_model']
 		return actions
 
 	fieldsets = [       (None,               {'fields': ['aircraft', 'flight_hours_today', 'flight_minutes_today', 'landings_today']}),

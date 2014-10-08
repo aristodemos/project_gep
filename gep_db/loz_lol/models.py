@@ -1,4 +1,5 @@
 from django.db import models
+from django import forms
 from django.forms import ModelForm
 from datetime import datetime, timedelta
 
@@ -86,7 +87,7 @@ class Part(models.Model):
 	part_serial			= models.CharField(max_length = 15, blank=True)
 
 
-	PART_POSITION_CHOICES = (('1', 'Left'),('2', 'Right'), ('0', 'n/a'), ('3', 'Hoist'),)
+	PART_POSITION_CHOICES = (('1', 'Left'),('2', 'Right'), ('0', 'n/a'), ('3', 'Hoist'), ('4', 'Main'), ('5', 'Secondary'))
 	part_position		= models.CharField(max_length=1, choices=PART_POSITION_CHOICES, default='0', blank=True, null=True)
 
 	part_is_installed	= models.BooleanField()
@@ -181,3 +182,10 @@ class Part(models.Model):
 
 
 #Forms
+class PartForm(ModelForm):
+	_selected_action 	= forms.CharField(widget=forms.MultipleHiddenInput)
+	aircraft 			= forms.ModelChoiceField(Aircraft.objects, empty_label='None aircraft selected')
+	part_source			= forms.CharField(max_length=100)
+	class Meta:
+		model = Part
+		exclude = ['part_location']

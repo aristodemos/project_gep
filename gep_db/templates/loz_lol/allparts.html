@@ -40,10 +40,35 @@
             font-weight: lighter;
             padding-left: 25%;
         }
+        #table-wrapper {
+            width: 90%;
+            padding-left: 5%;
+            padding-top: 50px;
+        }
+        #page-title {
+            text-align: center;
+            padding-top: 15px;
+        }
+        #navi {padding-left:5%;}
+        #navi > ul {
+            list-style-type: none;
+        }
+        #all_parts {
+            font-size: 14px;
+        }
     </style>
 </head>
 
 {% if all_parts_list %}
+<div id="page-title">
+    <h1>List of all AW139 parts.</h1>
+</div>
+<div id="navi">
+    <ul>
+    <li> <a href='/admin/'>Go to admin dashboard<a/> </li>
+    </ul>
+</div>
+<div id="table-wrapper">
 <table id="all_parts" class="display">
     <thead>
         <tr>
@@ -55,7 +80,7 @@
             <th>Limit Type<span class="rt"></span></th>
             <th>Expected Date
                 <div class="mini_txt">
-                    (dates with * are estimated)
+                    (* dates are estimated)
                 </div>
             </th>
         </tr>
@@ -63,7 +88,7 @@
     <tbody>
         {% for part in all_parts_list %}
         <tr>
-            <td>{{ part.part_number.part_description }}</td>
+            <td><a href="/loz_lol/{{ part.id }}/">{{ part.part_number.part_description }}</a></td>
             <td>{{ part.part_number }}</td>
             <td><a href="/loz_lol/{{ part.id }}/">{{ part.part_serial }}</a></td>
             <td>{{ part.part_location}}</td>
@@ -74,6 +99,7 @@
         {% endfor %}
     </tbody>
 </table>
+</div> <!--close table-wrapper -->
 {% else %}
     <p>No data available.</p>
 {% endif %}

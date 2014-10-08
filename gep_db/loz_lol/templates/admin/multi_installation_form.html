@@ -6,12 +6,17 @@
 
 <form action="" method="post">{% csrf_token %}
 
-    {{ installation_form }}
+    <p>{{ installation_form }}</p>
 
     <p>These parts will be installed to the selected Aircraft:</p>
-
-    <ul>{{ parts|unordered_list }}</ul>
-
+    <ul>
+        {% for part in parts %}
+            <p>
+                {{ part}}
+                {{part.part_number.part_description}}
+            </p>
+        {% endfor%}
+    </ul>
     <input type="hidden" name="action" value="Install_Items" />
     <input type="submit" name="apply" value="Apply" />
 </form>

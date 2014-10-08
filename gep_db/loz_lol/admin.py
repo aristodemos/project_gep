@@ -3,7 +3,7 @@ from django.contrib import admin
 import datetime as dd
 from django import forms
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, render
 from django.template import RequestContext
 from django.core.context_processors import csrf
 
@@ -55,6 +55,7 @@ class PartAdmin(admin.ModelAdmin):
 			return ''
 
 	class InstallItemsForm(forms.Form):
+		PART_POSITION_CHOICES = (('0', 'n/a'), ('1', 'Left'),('2', 'Right'), ('3', 'Hoist'), ('4', 'Main'), ('5', 'Secondary'))
 		_selected_action 	= forms.CharField(widget=forms.MultipleHiddenInput)
 		aircraft 			= forms.ModelChoiceField(Aircraft.objects, empty_label='None aircraft selected')
 		part_source			= forms.CharField(max_length=100)
@@ -95,6 +96,7 @@ class PartAdmin(admin.ModelAdmin):
 		form = None
 		if 'apply' in request.POST:
 			form = self.InstallItemsForm(request.POST)
+			#form = PartForm(request.Post)
 			if form.is_valid():
 				aircraft 	= form.cleaned_data['aircraft']
 				comment_frm = form.cleaned_data['part_source']
@@ -115,9 +117,10 @@ class PartAdmin(admin.ModelAdmin):
 
 		if not form:
 			form = self.InstallItemsForm(initial={'_selected_action':request.POST.getlist(admin.ACTION_CHECKBOX_NAME)})
+			#form = PartForm(initial={'_selected_action':request.POST.getlist(admin.ACTION_CHECKBOX_NAME)})
 
 		return render_to_response('admin/multi_installation_form.html', {'parts':queryset, 'installation_form': form,}, context_instance=RequestContext(request))
-
+		#return render(request, 'admin/multi_installation_form.html', {'parts':queryset, 'installation_form': form,})
 
 	list_display = ('part_description', 'part_number', 'part_serial', 'part_location', 'part_remaining_life', 'lifetime', 'expiry_date')
 	list_filter =('part_location',)
