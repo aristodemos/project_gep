@@ -1,0 +1,14 @@
+{% if part %}
+<!--
+    <ul>
+    {% for poll in latest_poll_list %}
+        <li><a href="/polls/{{ poll.id }}/">{{ poll.question }}</a></li>
+    {% endfor %}
+    </ul>
+-->
+<div>
+	<p>{{part.id}} {{part.part_number}}</p>
+</div>
+{% else %}
+    <p>No parts available.</p>
+{% endif %}

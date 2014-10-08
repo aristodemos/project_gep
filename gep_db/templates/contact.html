@@ -1,0 +1,9 @@
+<h1> Forma Ptisis </h1>
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+<form action="/loz_lol/contact/" method="post">
+{% csrf_token %}
+Aricraf marks: <input type="text" name="marks" id="marks"/><br>
+Flight Hours (today): <input type="text" name="flight_hours_today" id="flight_hours_today"/><br>
+Landings (today): <input type="text" name="landings_today" id="landings_today"/><br><br>
+<input type="submit" value="Update Aircraft" />
+</form>

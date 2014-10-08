@@ -1,0 +1,139 @@
+<head>
+    {% load staticfiles %}
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <!--<script type="text/javascript" src="{% static "list.js" %}"></script>-->
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.2/css/jquery.dataTables.css">
+    <!-- DataTables -->
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.2/js/jquery.dataTables.js"></script>
+    <script typw="text/javascript" charset="utf8" src="http://datatables.net/release-datatables/extensions/FixedHeader/js/dataTables.fixedHeader.js"></script>
+    <style>
+        body{
+            font-family: sans-serif;
+        }
+        td {
+            text-align: center;
+        }
+        .hell > td{
+            background-color:pink;
+            color:darkslategrey;
+        }
+        table.dataTable.display tbody tr.hell > .sorting_1{
+            background-color:pink;
+            color:darkslategrey;
+        }
+        .display.dataTable.no-footer{
+            z-index:100;
+            background-color: whitesmoke;
+        }
+        a {
+            color: black;
+        }
+        .hell > a {
+            color: darkslategrey;
+        }
+        div.mini_txt {
+            font-size:  smaller;
+            max-width:  50%;
+            text-align: center;
+            font-weight: lighter;
+            padding-left: 25%;
+        }
+    </style>
+</head>
+
+{% if all_parts_list %}
+<table id="all_parts" class="display">
+    <thead>
+        <tr>
+            <th>Part Descritpion</th>
+            <th>Part Number</th>
+            <th>Serial Number</th>
+            <th>Part Location<span class="loc"></span></th>
+            <th>Total Flight Hours</th>
+            <th>Limit Type<span class="rt"></span></th>
+            <th>Expected Date
+                <div class="mini_txt">
+                    (dates with * are estimated)
+                </div>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for part in all_parts_list %}
+        <tr>
+            <td>{{ part.part_number.part_description }}</td>
+            <td>{{ part.part_number }}</td>
+            <td><a href="/loz_lol/{{ part.id }}/">{{ part.part_serial }}</a></td>
+            <td>{{ part.part_location}}</td>
+            <td>{{ part.part_tot_flight_hours }}</td>
+            <td>{{ part.life_limit_tp }}</td>
+            <td>{{ part.expected_expiry }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+    <p>No data available.</p>
+{% endif %}
+<script>
+jQuery.fn.dataTableExt.oSort['exp-date-asc']  = function(x,y) {
+    if (x == 'None'){return 1;}
+    else{return ((x < y) ? -1 : ((x > y) ?  1 : 0));}
+
+};
+
+jQuery.fn.dataTableExt.oSort['exp-date-desc'] = function(x,y) {
+    if (x=='None'){return 1;}
+    else{return ((x < y) ?  1 : ((x > y) ? -1 : 0));}
+};
+
+$(document).ready(function() {
+    var table = $('#all_parts').DataTable({
+        "aoColumns": [
+			null,
+			null,
+			null,
+            null,
+            null,
+            null,
+			{ "sType": "exp-date" },
+		],
+        "pageLength": 600,
+        "order": [[ 6, "asc" ]],
+        "fnRowCallback": function( nRow, aData, iDisplayIndex ) {
+            d = new Date(aData[6].split('*')[0])
+            now = Date.now()
+            if ( d-now < 31600000000 )  {$(nRow).addClass( 'hell' );}
+        }
+    });
+    new $.fn.dataTable.FixedHeader( table );
+
+    var select = $('<select><option value=""></option></select>')
+        .insertAfter( $('.loc').empty() )
+        .on( 'change', function () {
+            var val = $(this).val();
+
+            table.column( 3 )
+                .search( val ? '^'+$(this).val()+'$' : val, true, false )
+                .draw();
+        });
+    table.column( 3 ).data().unique().sort().each( function ( d, j ) {
+        select.append( '<option value="'+d+'">'+d+'</option>' )
+    });
+    var select5 = $('<select><option value=""></option></select>')
+        .insertAfter( $('.rt').empty() )
+        .on( 'change', function () {
+            var val = $(this).val();
+
+            table.column( 5 )
+                .search( val ? '^'+$(this).val()+'$' : val, true, false )
+                .draw();
+        });
+    table.column( 5 ).data().unique().sort().each( function ( d, j ) {
+        select5.append( '<option value="'+d+'">'+d+'</option>' )
+    });
+
+});
+</script>
