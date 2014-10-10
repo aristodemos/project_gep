@@ -71,19 +71,29 @@ class PartAdmin(admin.ModelAdmin):
 			if form.is_valid():
 				comment_frm = form.cleaned_data['reason_of_removal']
 				count = 0
+				total_items_in_queryset = len(queryset)
 				for part in queryset:
+					if part.part_is_installed == False:
+						continue
 					aircraft = Aircraft.objects.get(ac_marks=part.part_location)
 					part.part_is_installed = False
 					part.part_location = "Store"
 					part.part_last_rem_date = datetime.today()
 					part.save()
+					##the following 3 lines are not necessary - parts' hours are updated after every formaPtisis entry
+					'''
+					last_in = item_movement.objects.filter(part=part, move_type='RM').latest('date')
+					part.part_tot_flight_hours = part.part_tot_flight_hours + aircraft.ac_flight_hours - last_in.rel_ac_hours
+					part.part_tot_landings = part.part_tot_landings + aircraft.ac_landings - last_in.rel_ac_landings
+					'''
 					###################
-					#Update Part Total Hours & Landings
-					###################
+					#insert Removal Record
 					removed_part = item_movement(move_type='RM', rel_aircraft=aircraft, part=part, rel_ac_hours=aircraft.ac_flight_hours, rel_ac_landings=aircraft.ac_landings, comments = "reason of removal: "+comment_frm)
 					removed_part.save()
 					count += 1
 				self.message_user(request, "Successfully removed %d parts from Aircraft." % (count))
+				if count != total_items_in_queryset:
+					self.message_user(request, "%d were not removed because they ARE NOT installed." % (total_items_in_queryset-count))
 				return HttpResponseRedirect(request.get_full_path())
 		if not form:
 			form = self.RemoveItemsForm(initial={'_selected_action':request.POST.getlist(admin.ACTION_CHECKBOX_NAME)})
@@ -101,7 +111,10 @@ class PartAdmin(admin.ModelAdmin):
 				aircraft 	= form.cleaned_data['aircraft']
 				comment_frm = form.cleaned_data['part_source']
 				count = 0
+				total_items_in_queryset = len(queryset)
 				for part in queryset:
+					if part.part_is_installed == True:
+						continue
 					part.part_is_installed = True
 					part.part_location = aircraft.ac_marks
 					part.part_last_in_date = datetime.today()
@@ -113,6 +126,8 @@ class PartAdmin(admin.ModelAdmin):
 					installed_part.save()
 					count += 1
 				self.message_user(request, "Successfully added %d parts to Aircraft." % (count))
+				if count != total_items_in_queryset:
+					self.message_user(request, "%d were not installed because they ARE already installed." % (total_items_in_queryset-count))
 				return HttpResponseRedirect(request.get_full_path())
 
 		if not form:

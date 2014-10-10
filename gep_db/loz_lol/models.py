@@ -108,12 +108,11 @@ class Part(models.Model):
 	def expected_expiry(self):
 		lf 		= self.part_number.lifetime.values_list('limit_calendar_years', 'limit_calendar_months', 'limit_calendar_days')
 		lf_type = self.part_number.lifetime.values('limit_type')
-		output = ''
+		'''
 		if len(lf_type) > 0:
 			if lf[0][0]>0 or lf[0][1]>0 or lf[0][2]>0:
 				days_delta = lf[0][0]*365 + lf[0][1]*30 + lf[0][2] - self.part_tot_life
 				date_out = datetime.now()+timedelta(days=days_delta)
-				output += str(date_out.strftime("%Y/%m/%d"))
 		if len(lf_type) > 1:
 			if lf[1][0]>0 or lf[1][1]>0 or lf[1][2]>0:
 				days_delta = lf[0][0]*365 + lf[0][1]*30 + lf[0][2] - self.part_tot_life
@@ -121,6 +120,25 @@ class Part(models.Model):
 				return str(min(date_out, date_out2).strftime("%Y/%m/%d"))
 		else:
 			return self.part_rem_fh()
+		'''
+		if len(lf_type) > 1:
+			if lf[0][0]>0 or lf[0][1]>0 or lf[0][2]>0:
+				days_delta = lf[0][0]*365 + lf[0][1]*30 + lf[0][2] - self.part_tot_life
+				date_out = datetime.now()+timedelta(days=days_delta)
+
+			if lf[1][0]>0 or lf[1][1]>0 or lf[1][2]>0:
+				days_delta = lf[0][0]*365 + lf[0][1]*30 + lf[0][2] - self.part_tot_life
+				date_out2 = datetime.now()+timedelta(days=days_delta)
+				return str(min(date_out, date_out2).strftime("%Y/%m/%d"))
+
+		elif len(lf_type) == 1:
+			if lf[0][0]>0 or lf[0][1]>0 or lf[0][2]>0:
+				days_delta = lf[0][0]*365 + lf[0][1]*30 + lf[0][2] - self.part_tot_life
+				date_out = datetime.now()+timedelta(days=days_delta)
+				return str(date_out.strftime("%Y/%m/%d"))
+		else:
+			return self.part_rem_fh()
+
 
 	def part_rem_fh(self):
 		lf 		= self.part_number.lifetime.values_list('limit_flight_hours')
