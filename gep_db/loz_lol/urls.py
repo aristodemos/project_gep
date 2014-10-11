@@ -4,7 +4,7 @@ from loz_lol import views
 
 urlpatterns = patterns('',
 	#ex: /loz_lol/
-    url(r'^$', views.index, name='index'),
+    url(r'^$', views.all_parts, name='index'),
     #ex: /loz_lol/1/
     url(r'^(?P<part_id>\d+)/$', views.detail, name='detail'),
     url(r'^install/(\d+)/$', 'install_part', name='install_part'),

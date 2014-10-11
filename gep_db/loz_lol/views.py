@@ -9,7 +9,6 @@ from ef421.models import item_movement
 
 
 def index(request):
-    #return HttpResponse("AW139.")    "+str(p.id)+"
     all_parts = Part.objects.order_by('-part_number')
     output = "<a href='/admin/'>Go to admin dashboard<a/>"
     output += ''.join(["<p><a href='"+str(p.id)+"'>"+p.part_number.part_description+'  '+str(p.part_number)+' '+str(p.part_serial)+"</a></p>" for p in all_parts])

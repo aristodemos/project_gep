@@ -7,11 +7,11 @@
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.2/css/jquery.dataTables.css">
     <!-- DataTables -->
     <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.2/js/jquery.dataTables.js"></script>
-    <script typw="text/javascript" charset="utf8" src="http://datatables.net/release-datatables/extensions/FixedHeader/js/dataTables.fixedHeader.js"></script>
+    <script type="text/javascript" charset="utf8" src="http://datatables.net/release-datatables/extensions/FixedHeader/js/dataTables.fixedHeader.js"></script>
+    <link href='http://fonts.googleapis.com/css?family=Oswald:400,700&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Lobster' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Droid+Serif' rel='stylesheet' type='text/css'>
     <style>
-        body{
-            font-family: sans-serif;
-        }
         td {
             text-align: center;
         }
@@ -25,7 +25,8 @@
         }
         .display.dataTable.no-footer{
             z-index:100;
-            background-color: whitesmoke;
+            background-color:rgb(89, 210, 220);
+            color: rgb(74, 79, 96);
         }
         a {
             color: black;
@@ -44,14 +45,31 @@
             width: 90%;
             padding-left: 5%;
             padding-top: 50px;
+            font-family: 'Droid Serif', serif;
         }
         #page-title {
             text-align: center;
             padding-top: 15px;
+            font-family: 'Lobster', cursive;
+            font-size: 3.5em;
+            color:rgb(128, 240, 202);
         }
         #navi {padding-left:5%;}
         #navi > ul {
             list-style-type: none;
+            float: left;
+        }
+        #navi > ul > li {
+            float: left;
+            padding:12px;
+            font-family: 'Oswald', sans-serif;
+            text-decoration: none;
+        }
+        a {
+            text-decoration: none;
+            }
+        #table-wrapper > a {
+            color: gray;
         }
         #all_parts {
             font-size: 14px;
@@ -61,11 +79,12 @@
 
 {% if all_parts_list %}
 <div id="page-title">
-    <h1>List of all AW139 parts.</h1>
+    <h1>All AW139 parts.</h1>
 </div>
 <div id="navi">
     <ul>
-    <li> <a href='/admin/'>Go to admin dashboard</a> </li>
+    <li class="navli"> <a href='/admin/'>Go to admin dashboard</a> </li>
+    <li class="navli"> <a href='/admin/loz_lol/part/'>Parts Replacements</a> </li>
     </ul>
 </div>
 <div id="table-wrapper">
