@@ -49,12 +49,27 @@
         }
         #page-title {
             text-align: center;
-            padding-top: 15px;
+            padding-top: 5px;
             font-family: 'Lobster', cursive;
             font-size: 3.5em;
             color:rgb(128, 240, 202);
         }
-        #navi {padding-left:5%;}
+        #page-title > .p-titlou {
+            top:170px;
+            position:relative;
+            display:inline-block;
+            background-color: white;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+        p.p-titlou {
+            display: block;
+            font-size: 2em;
+            font-weight: bold;
+        }
+        #navi {
+            padding-left: 5%;
+        }
         #navi > ul {
             list-style-type: none;
             float: left;
@@ -65,15 +80,11 @@
             font-family: 'Oswald', sans-serif;
             text-decoration: none;
         }
-        a {
-            text-decoration: none;
-            }
-        #table-wrapper > a {
-            color: gray;
-        }
-        #all_parts {
-            font-size: 14px;
-        }
+
+        a                   { text-decoration: none; }
+        #table-wrapper > a  { color: gray; }
+        #all_parts          { font-size: 14px; }
+        .dataTables_filter  { font-size: 24px; }
     </style>
 </head>
 
@@ -81,6 +92,7 @@
 <div id="page-title">
     <h1>All AW139 parts.</h1>
 </div>
+
 <div id="navi">
     <ul>
     <li class="navli"> <a href='/admin/'>Go to admin dashboard</a> </li>
