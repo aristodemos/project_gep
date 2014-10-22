@@ -36,6 +36,9 @@ class PartAdmin(admin.ModelAdmin):
 	def part_description(self, obj):
 		return obj.part_number.part_description
 
+	def ata_chapter(self, obj):
+		return obj.part_number.part_ata_chapter
+
 	def lifetime(self, obj):
 		out = ''
 		for i in obj.part_number.lifetime.values_list('limit_type'):
@@ -137,7 +140,7 @@ class PartAdmin(admin.ModelAdmin):
 		return render_to_response('admin/multi_installation_form.html', {'parts':queryset, 'installation_form': form,}, context_instance=RequestContext(request))
 		#return render(request, 'admin/multi_installation_form.html', {'parts':queryset, 'installation_form': form,})
 
-	list_display = ('part_description', 'part_number', 'part_serial', 'part_location', 'part_remaining_life', 'lifetime', 'expiry_date')
+	list_display = ('part_description', 'part_number','part_serial', 'part_location', 'part_remaining_life', 'lifetime', 'expiry_date')
 	list_filter =('part_location',)
 	search_fields = ['part_number__part_number', 'part_number__part_description',]
 	actions = ['Remove_Items', 'Install_Items']
@@ -151,7 +154,7 @@ class PartListAdmin(admin.ModelAdmin):
 
 		#_meta
 
-	list_display 		= ('part_description', 'part_number', 'lifetime_it')
+	list_display 		= ('part_description', 'part_number', 'lifetime_it', 'part_ata_chapter')
 	search_fields 		= ['part_number', 'part_description', ]
 	list_filter 		= ('lifetime__limit_type',)
 	inlines				=[LifeInline, PartInline]
