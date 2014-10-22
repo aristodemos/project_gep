@@ -136,8 +136,10 @@ class Part(models.Model):
 				days_delta = lf[0][0]*365 + lf[0][1]*30 + lf[0][2] - self.part_tot_life
 				date_out = datetime.now()+timedelta(days=days_delta)
 				return str(date_out.strftime("%Y/%m/%d"))
+			else:
+				return self.part_rem_fh()
 		else:
-			return self.part_rem_fh()
+			return None;
 
 
 	def part_rem_fh(self):
@@ -146,7 +148,7 @@ class Part(models.Model):
 		output = ''
 		if len(lf_type) > 0:
 			if lf[0][0] > 0:
-				remaining_days = (lf[0][0] - int(self.part_tot_flight_hours))/(300.0/365) #300FH in a year
+				remaining_days = (lf[0][0]*60 - int(self.part_tot_flight_hours))/(300.0*60/365) #300FH = 300*60 minutes in a year
 				return str( (datetime.now()+timedelta(days=remaining_days)).strftime("%Y/%m/%d")+"*" )
 		else:
 			return self.part_rem_lands()
@@ -170,7 +172,8 @@ class Part(models.Model):
 		if len(lf_type) > 0:
 
 			if lf[0][0] > 0:
-				output += "FH: "+ str(lf[0][0] - int(self.part_tot_flight_hours))
+				minutes = lf[0][0]*60 - int(self.part_tot_flight_hours)
+				output += "FH: "+ str(minutes/60)+'.'+str(minutes%60)
 			if lf[0][1] > 0:
 				output +=" Landings: "+ str(lf[0][1] - self.part_tot_landings)
 			if lf[0][2]>0 or lf[0][3]>0 or lf[0][4]>0:
