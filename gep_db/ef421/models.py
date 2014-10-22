@@ -3,6 +3,7 @@ from django.db import models
 from loz_lol.models import Part, PartList, Part_Life, Lifetime_Limit, Aircraft
 from django import forms
 from django.db.models import F
+import re
 # Create your models here.
 
 class item_movement(models.Model):
@@ -56,13 +57,29 @@ class formaPtisis(models.Model):
 		return str(self.flight_hours_today/60)+'.'+str(self.flight_hours_today%60)
 
 class formaPtisisModelForm(forms.ModelForm):
-	flight_minutes_today = forms.IntegerField()
+	#flight_minutes_today = forms.IntegerField()
+	#new form - join flight hours & minutes test area
+	p = re.compile('[0-9]{1,3}[:.][0-5]{1}[0-9]{1}')
+	flight_minutes_today = forms.CharField()
 	class Meta:
 		model = formaPtisis
 		fields = [ 'flight_hours_today', 'flight_minutes_today', 'landings_today']
+	def clean_flight_minutes_today(self):
+		data = self.cleaned_data['flight_minutes_today']
+		if not self.p.match(data):
+			raise forms.ValidationError("Flight time not in the right format! Use HH:MM or HH.MM")
+		# Always return the cleaned data, whether you have changed it or
+		# not.
+		return self.p.match(data).group()
 	def save(self, commit=True):
-		flight_minutes_today = self.cleaned_data.get('flight_minutes_today', None)
-		time_today = self.instance.flight_hours_today*60 + flight_minutes_today
+		ffhh_today = self.cleaned_data.get('flight_minutes_today', None)
+		if '.' in ffhh_today:
+			fhours_today = int(ffhh_today.split('.', 1)[0])
+			fminutes_today = int(ffhh_today.split('.', 1)[1])
+		elif ':' in ffhh_today:
+			fhours_today = int(ffhh_today.split(':', 1)[0])
+			fminutes_today = int(ffhh_today.split(':', 1)[1])
+		time_today = fhours_today*60 + fminutes_today
 		self.instance.flight_hours_today = time_today
 		#############################################################
 		#				PENALTIES									#

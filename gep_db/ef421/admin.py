@@ -55,7 +55,7 @@ def delete_formaPtisis(modeladmin, request, queryset):
 
 class FormaPtisisAdmin(admin.ModelAdmin):
 	form = formaPtisisModelForm
-	fieldsets = [       (None,               {'fields': ['aircraft', 'flight_hours_today', 'flight_minutes_today', 'landings_today']}),
+	fieldsets = [       (None,               {'fields': ['aircraft', 'flight_minutes_today', 'landings_today']}),
 		('Penalties', {'fields': ['hoist_lifts_main', 'hoist_lifts_sec', 'cat_a', 'start_stop', 'cargo_cycles', 'above_6400']}),
 	]
 	actions = [delete_formaPtisis,]
