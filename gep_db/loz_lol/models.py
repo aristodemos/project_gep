@@ -185,7 +185,11 @@ class Part(models.Model):
 		return Part.objects.values('part_description').distinct()
 
 	def display_tot_fh(self):
-		return str(self.part_tot_flight_hours/60)+'.'+str(self.part_tot_flight_hours%60)
+		if self.part_tot_flight_hours%60 < 10:
+			part_minutes = '0'+str(self.part_tot_flight_hours%60)
+			return str(self.part_tot_flight_hours/60)+':'+part_minutes
+		else:
+			return str(self.part_tot_flight_hours/60)+':'+str(self.part_tot_flight_hours%60)
 
 
 	#class Meta:
