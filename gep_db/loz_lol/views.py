@@ -15,7 +15,7 @@ def index(request):
     return HttpResponse(output)
 
 # Create your views here.
-def detail(request, part_id):
+def detail_old(request, part_id):
     output = "<h2>You're looking at part %s. </h2>" % part_id
     p=Part.objects.get(pk=int(part_id))
     output += "<p>Part Number = %s.</p>" 		% p.part_number
@@ -49,6 +49,17 @@ def current_datetime(request):
     now = datetime.datetime.now()
     html = "<html><body><h1>It is now %s.</h1></body></html>" % now
     return HttpResponse(html)
+
+def detail(request, part_id):
+    p = Part.objects.get(pk=int(part_id))
+    metakiniseis = []
+    metakiniseis = item_movement.objects.filter(part=p)
+    template = loader.get_template('loz_lol/ef405.html')
+    context = RequestContext(request, {
+        'part_details': p,
+        'moves': metakiniseis,
+    })
+    return HttpResponse(template.render(context))
 
 def all_parts(request):
     parts = Part.objects.all()
