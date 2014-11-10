@@ -25,6 +25,7 @@ class item_movement(models.Model):
 class formaPtisis(models.Model):
 	aircraft 			= models.ForeignKey(Aircraft)
 	date 				= models.DateField(auto_now=True, auto_now_add=True, null=True, blank=True)
+	date.editable		= True
 	#flight hours is a positive integer in minutes
 	flight_hours_today	= models.PositiveIntegerField()
 	landings_today		= models.PositiveIntegerField()
