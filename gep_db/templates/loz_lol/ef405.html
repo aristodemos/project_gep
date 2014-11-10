@@ -1,0 +1,269 @@
+
+
+  <head data-gwd-animation-mode="quickMode">
+    <title>ΕΦ 405</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="generator" content="Google Web Designer 1.1.3.1015">
+    <style type="text/css">
+      html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0px;
+      }
+      body {
+        background-color: transparent;
+        -webkit-transform: perspective(1400px) matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+        -webkit-transform-style: preserve-3d;
+      }
+      .wrapper {
+        height: 100%;
+        display: table;
+        width: 100%;
+        text-align: center;
+        -webkit-transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+        -webkit-transform-style: preserve-3d;
+      }
+      .header {
+        display: table-row;
+        height: 1px;
+      }
+      .main {
+        height: 100%;
+        display: table;
+        width: 100%;
+      }
+      .box {
+        display: table-cell;
+      }
+      .sidebar {
+        width: 100px;
+
+      }
+      .footer {
+        display: table-row;
+        height: 1px;
+      }
+       .data-table {
+        border-collapse: collapse;
+
+    }
+    .border-bottom {
+        border-bottom: 1px solid #000;
+    }
+    .border-left {
+        border-left: 1px solid #000;
+    }
+    .border-right {
+        border-right: 1px solid #000;
+    }
+      .border-top{
+         border-top: 1px solid #000;
+      }
+      td:not(.hist_list) {
+          text-align: center;
+      }
+      #navi {
+          padding-left: 5%;
+      }
+      #navi > ul {
+          list-style-type: none;
+          float: left;
+      }
+      #navi > ul > li {
+          float: left;
+          padding:12px;
+          font-family: 'Oswald', sans-serif;
+          text-decoration: none;
+      }
+      a { text-decoration: none; }
+    </style>
+  </head>
+  {% load mathfilters %}
+  <body>
+    <div class="wrapper">
+      <div class="header">
+         <h1>ΜΗΤΡΩΟ ΑΕΡΟΠΟΡΙΚΟΥ ΥΛΙΚΟΥ</h1>
+      </div>
+      <div class="main">
+        <div class="box sidebar"></div>
+        <div class="box content">
+        {% if part_details %}
+          <table class="data-table">
+    <tr>
+        <td colspan="4" class="border-top border-bottom border-left border-right"><strong>1. Ονοματολογία Υλικού</strong></td>
+        <td colspan="4" class="border-top border-bottom border-right"><strong>2. Υπόδειγμα και κατασκευαστής</strong></td>
+        <td colspan="3" class="border-top border-bottom border-right"><strong>3. Αύξων Αριθμός</strong></td>
+        <td colspan="3" class="border-top border-bottom border-right"><strong>4. Ημερομηνία Κατασκευής</strong></td>
+
+    </tr>
+    <tr>
+        <td colspan="4" class="border-bottom border-left border-right">{{ part_details.part_number.part_description }}</td>
+        <td colspan="4" class="border-bottom border-right"> {{part_details.part_number}} </td>
+        <td colspan="3" class="border-bottom border-right">{{part_details.part_serial}}</td>
+        <td colspan="3" class="border-bottom border-right"></td>
+    </tr>
+    <tr>
+        <td rowspan="2" colspan="8" class="border-bottom border-left border-right"><strong>5. Μητρώο Μετακινήσεων</strong></td>
+        <td colspan="5" class="border-bottom border-right"><strong>6. Μητρώο Εγκαταστάσεων</strong></td>
+
+    </tr>
+    <tr>
+        <td colspan="4" class="border-bottom border-right">Εγκατεστάθη</td>
+        <td class="border-bottom border-right">Αφηρέθη</td>
+
+    </tr>
+    <tr>
+        <td colspan="4" class="border-bottom border-left border-right"><strong>ΜΟΝΑΔΑ ΚΑΙ ΕΔΡΑ</strong></td>
+        <td class="border-bottom border-right">Επιθεωρήθη</td>
+        <td class="border-bottom border-right">Ημερομηνία</td>
+        <td class="border-bottom border-right">Ώρες εκ κατασκευής</td>
+        <td class="border-bottom border-right">Σύνολο ωρών</td>
+        <td class="border-bottom border-right">Υπόδ.</td>
+        <td class="border-bottom border-right">Αύξ. Αριθμ.</td>
+        <td class="border-bottom border-right">Αριθμ. Θέσεως</td>
+        <td class="border-bottom border-right">Ώρες Αεροσκάφους</td>
+        <td class="border-bottom border-right">Ώρες Αεροσκάφους</td>
+
+    </tr>
+    {% if moves %}
+        {% for i in moves %}
+    <tr>
+        <td colspan="4" class="border-bottom border-left border-right">460 ΜΕ-Δ ΠΑΦΟΣ</td>
+        <td class="border-bottom border-right"></td>
+        <td class="border-bottom border-right"></td>
+        <td class="border-bottom border-right"></td>
+
+            {% if i.get_move_type_display == 'Removal'%}
+            <td class="border-bottom border-right total_hours"></td>
+            {% else %}
+            <td class="border-bottom border-right"></td>
+            {% endif%}
+
+        <td class="border-bottom border-right">
+            {{ i.rel_aircraft.ac_type }}
+        </td>
+        <td class="border-bottom border-right">
+            {{ i.rel_aircraft.ac_sn }}
+        </td>
+        <td class="border-bottom border-right"></td>
+
+            {% if i.get_move_type_display == 'Installation'%}
+            <td class="border-bottom border-right in_hours" var='{{i.rel_ac_hours}}'>
+                {% with hours=i.rel_ac_hours|intdiv:60 minutes=i.rel_ac_hours|mod:60 %}
+                {{hours}}:{{minutes}}
+                {% endwith %}
+            {% else %}
+            <td class="border-bottom border-right" var=''>
+            {%endif%}
+
+        </td>
+
+            {% if i.get_move_type_display == 'Removal'%}
+            <td class="border-bottom border-right out_hours" var='{{i.rel_ac_hours}}'>
+                {% with hours=i.rel_ac_hours|intdiv:60 minutes=i.rel_ac_hours|mod:60 %}
+                {{hours}}:{{minutes}}
+                {% endwith %}
+            {% else %}
+                <td class="border-bottom border-right" var=''>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor%}
+    {% endif%}
+    <tr>
+        <td colspan="8" class="border-bottom border-left border-right"><strong>7. Μητρώο Συναφούς Υλικού</strong></td>
+        <td class="border-bottom border-right"></td>
+        <td class="border-bottom border-right"></td>
+        <td class="border-bottom border-right"></td>
+        <td class="border-bottom border-right"></td>
+        <td class="border-bottom border-right"></td>
+    </tr>
+    <tr>
+        <td class="border-bottom border-left border-right">Εξαρτήματα</td>
+        <td class="border-bottom border-right">Υπόδειγμα</td>
+        <td class="border-bottom border-right">Αυξ. Αριθμ.</td>
+        <td class="border-bottom border-right">Προγεν. ώρες εξαρτήματα</td>
+        <td class="border-bottom border-right">Ημερομηνία</td>
+        <td class="border-bottom border-right">Ώρες κυρίου συγκροτήματος</td>
+        <td class="border-bottom border-right">Ημερομηνία</td>
+        <td class="border-bottom border-right">Ώρες κυρίου συγκροτήματος</td>
+        <td colspan="5" class="border-bottom border-right"><strong>8. Σημαντικά Ιστορικά Στοιχεία<strong></td>
+
+    </tr>
+    <tr>
+        <td class="border-bottom border-left border-right"></td>
+        <td class="border-bottom border-right"></td>
+        <td class="border-bottom border-right"></td>
+        <td class="border-bottom border-right"></td>
+        <td class="border-bottom border-right"></td>
+        <td class="border-bottom border-right"></td>
+        <td class="border-bottom border-right"></td>
+        <td class="border-bottom border-right"></td>
+
+        <td colspan="5" class="border-bottom border-right hist_list">
+        {% if moves %}
+        <ol>
+        {% for i in moves %}
+                <li>
+                {% if i.get_move_type_display == 'Removal' %}
+                    Αφαιρέθηκε στις:
+                {% endif %}
+                {% if i.get_move_type_display == 'Installation' %}
+                    Εγκαταστάθηκε στις:
+                {% endif %}
+                {{ i.date }}
+                {{ i.comments}}
+                </li>
+        <hr />
+        {% endfor %}
+        </ol>
+        {% endif %}
+        </td>
+
+    </tr>
+</table>
+    {% endif %}
+
+
+        </div>
+        <div class="box sidebar"></div>
+      </div>
+      <div class="footer">
+      <div id="navi">
+          <ul>
+          <li class="navli"> <a href='/loz_lol/'>Back to all parts</a> </li>
+          <li class="navli"> <a href='/admin/ef421/item_movement/?q={{part_details.part_serial}}'>Part database records</a> </li>
+          </ul>
+      </div>
+      </div>
+    </div>
+  </body>
+  <script>
+    var in_hours = document.getElementsByClassName('in_hours');
+    var out_hours = document.getElementsByClassName('out_hours');
+    var tot_hours = document.getElementsByClassName('total_hours');
+    var inh     =   [];
+    var outh    =   [];
+    var toth    =   new Array(tot_hours.length);
+    toth[0]=0;
+
+    for (i=0; i<in_hours.length; i++){
+        inh[i] = parseInt(in_hours[i].getAttribute('var'));
+    }
+    for (i=0; i<out_hours.length; i++){
+        outh[i] = parseInt(out_hours[i].getAttribute('var'));
+        /*
+        if (outh[i] < inh[i]) {
+            alert('it appears that the removal - installation history of the part is corrupted! - See removal # i:',i);
+        }*/
+    }
+    for (i=1; i<=tot_hours.length; i++){
+        //console.log(i, outh[i-1], inh[i-1], toth[i-1]);
+        flh = toth[i-1] + outh[i-1] - inh[i-1];
+        //console.log(flh);
+        toth[i] = flh;
+        tot_hours[i-1].innerText = String(Math.floor(flh/60))+':'+String(flh%60);
+        //tot_hours[i-1].innerText = flh;
+    }
+
+  </script>
