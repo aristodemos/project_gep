@@ -1,8 +1,9 @@
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, render_to_response
 from django.template import RequestContext, loader
-import datetime
+import datetime, json
+from django.core import serializers
 from loz_lol.models import Part, PartList
 from ef421.models import item_movement
 
@@ -54,10 +55,12 @@ def detail(request, part_id):
     p = Part.objects.get(pk=int(part_id))
     metakiniseis = []
     metakiniseis = item_movement.objects.filter(part=p)
+    data = serializers.serialize("json", item_movement.objects.filter(part=p))
     template = loader.get_template('loz_lol/ef405.html')
     context = RequestContext(request, {
         'part_details': p,
         'moves': metakiniseis,
+        'jdata': data,
     })
     return HttpResponse(template.render(context))
 

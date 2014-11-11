@@ -22,6 +22,9 @@ class item_movement(models.Model):
 	date				= models.DateTimeField(auto_now_add=True, null = True, blank = True)
 	date.editable = True
 
+	class Meta:
+		ordering = ['date',]
+
 class formaPtisis(models.Model):
 	aircraft 			= models.ForeignKey(Aircraft)
 	date 				= models.DateField(auto_now=True, auto_now_add=True, null=True, blank=True)
