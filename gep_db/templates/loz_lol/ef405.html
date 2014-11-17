@@ -240,8 +240,14 @@
     }
 
     for (i=1; i<=outh.length; i++){
-        toth[i] = toth[i-1] + outh[i] - inh[i]
-        tot_hours[i].innerText = String(Math.floor(toth[i]/60))+':'+String(toth[i]%60);
+        if (outh[i] == undefined){
+            tot_hours[i].innerText = "-:-"
+        }
+        else {
+            toth[i] = toth[i-1] + outh[i] - inh[i]
+            tot_hours[i].innerText = String(Math.floor(toth[i]/60))+':'+String(toth[i]%60);
+        }
+
     }
 
   </script>
