@@ -8,6 +8,7 @@ from django.template import RequestContext
 from django.core.context_processors import csrf
 
 
+
 #from loz_lol.models import Aircraft, PartList, Lifetime_Limit
 from loz_lol.models import *
 from ef421.models import item_movement
@@ -50,8 +51,8 @@ class PartAdmin(admin.ModelAdmin):
 		part_lifes = Part_Life.objects.filter(part_number=obj.part_number)
 		days_to_live = []
 		for life in part_lifes:
-			days_to_live.append(life.lifetime.limit_calendar_years*365 + life.lifetime.limit_calendar_months*30 + life.lifetime.limit_calendar_days- obj.part_tot_life)
-		if len(days_to_live) > 0:
+			days_to_live.append(life.lifetime.limit_calendar_years*365 + life.lifetime.limit_calendar_months*30 + life.lifetime.limit_calendar_days - obj.part_tot_life)
+		if len(days_to_live) > 0 and min(days_to_live) > 0:
 			today = dd.date.today()
 			return today + timedelta(min(days_to_live))
 		else:
@@ -66,6 +67,7 @@ class PartAdmin(admin.ModelAdmin):
 	class RemoveItemsForm(forms.Form):
 		_selected_action 	= forms.CharField(widget=forms.MultipleHiddenInput)
 		reason_of_removal	= forms.CharField(max_length=100)
+		date_of_rem			= forms.DateTimeField(initial=datetime.today());
 
 	def Remove_Items(self, request, queryset):
 		form = None
@@ -73,6 +75,7 @@ class PartAdmin(admin.ModelAdmin):
 			form = self.RemoveItemsForm(request.POST)
 			if form.is_valid():
 				comment_frm = form.cleaned_data['reason_of_removal']
+				removal_date = form.cleaned_data['date_of_rem']
 				count = 0
 				total_items_in_queryset = len(queryset)
 				for part in queryset:
@@ -81,7 +84,7 @@ class PartAdmin(admin.ModelAdmin):
 					aircraft = Aircraft.objects.get(ac_marks=part.part_location)
 					part.part_is_installed = False
 					part.part_location = "Store"
-					part.part_last_rem_date = datetime.today()
+					part.part_last_rem_date = removal_date
 					part.save()
 					##the following 3 lines are not necessary - parts' hours are updated after every formaPtisis entry
 					'''
@@ -91,7 +94,7 @@ class PartAdmin(admin.ModelAdmin):
 					'''
 					###################
 					#insert Removal Record
-					removed_part = item_movement(move_type='RM', rel_aircraft=aircraft, part=part, rel_ac_hours=aircraft.ac_flight_hours, rel_ac_landings=aircraft.ac_landings, comments = "reason of removal: "+comment_frm)
+					removed_part = item_movement(move_type='RM', rel_aircraft=aircraft, part=part, rel_ac_hours=aircraft.ac_flight_hours, rel_ac_landings=aircraft.ac_landings, comments = "reason of removal: "+comment_frm, date=removal_date)
 					removed_part.save()
 					count += 1
 				self.message_user(request, "Successfully removed %d parts from Aircraft." % (count))

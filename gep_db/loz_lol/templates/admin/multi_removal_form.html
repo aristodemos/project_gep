@@ -5,8 +5,8 @@
 <p>Remove Parts:</p>
 
 <form action="" method="post">{% csrf_token %}
-
-    {{ removal_form }}
+	{{removal_form}}
+    
 
     <p>These parts will be removed from their Aircraft:</p>
     {% for part in parts %}
@@ -15,6 +15,7 @@
             {{ part.part_number.part_description }}
             <a href="{{ part.id }}" target="_blank">
             {{ part.part_serial }}</a>
+			
     </h3>
     {% endfor %}
 

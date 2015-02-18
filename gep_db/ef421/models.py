@@ -19,7 +19,7 @@ class item_movement(models.Model):
 	rel_ac_landings		= models.PositiveIntegerField()
 	part 				= models.ForeignKey(Part)
 	comments			= models.CharField(max_length = 100)
-	date				= models.DateTimeField(auto_now_add=True, null = True, blank = True)
+	date				= models.DateTimeField(auto_now_add=False, null = True, blank = True)
 	date.editable = True
 
 	class Meta:
