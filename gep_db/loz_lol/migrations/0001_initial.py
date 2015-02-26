@@ -14,7 +14,7 @@ class Migration(SchemaMigration):
             ('ac_type', self.gf('django.db.models.fields.CharField')(max_length=10)),
             ('ac_sn', self.gf('django.db.models.fields.PositiveIntegerField')()),
             ('ac_marks', self.gf('django.db.models.fields.PositiveIntegerField')()),
-            ('ac_flight_hours', self.gf('django.db.models.fields.CharField')(max_length=8)),
+            ('ac_flight_hours', self.gf('django.db.models.fields.PositiveIntegerField')()),
             ('ac_landings', self.gf('django.db.models.fields.PositiveIntegerField')()),
         ))
         db.send_create_signal(u'loz_lol', ['Aircraft'])
@@ -23,11 +23,11 @@ class Migration(SchemaMigration):
         db.create_table(u'loz_lol_lifetime_limit', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('limit_type', self.gf('django.db.models.fields.CharField')(default='FH', max_length=2)),
-            ('limit_calendar_years', self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True)),
-            ('limit_calendar_months', self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True)),
-            ('limit_calendar_days', self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True)),
-            ('limit_flight_hours', self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True)),
-            ('limit_landings', self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True)),
+            ('limit_calendar_years', self.gf('django.db.models.fields.PositiveIntegerField')(default=0)),
+            ('limit_calendar_months', self.gf('django.db.models.fields.PositiveIntegerField')(default=0)),
+            ('limit_calendar_days', self.gf('django.db.models.fields.PositiveIntegerField')(default=0)),
+            ('limit_flight_hours', self.gf('django.db.models.fields.PositiveIntegerField')(default=0)),
+            ('limit_landings', self.gf('django.db.models.fields.PositiveIntegerField')(default=0)),
         ))
         db.send_create_signal(u'loz_lol', ['Lifetime_Limit'])
 
@@ -55,11 +55,11 @@ class Migration(SchemaMigration):
             ('part_position', self.gf('django.db.models.fields.CharField')(default='0', max_length=1, null=True, blank=True)),
             ('part_is_installed', self.gf('django.db.models.fields.BooleanField')()),
             ('part_location', self.gf('django.db.models.fields.CharField')(max_length=5)),
-            ('part_tot_flight_hours', self.gf('django.db.models.fields.CharField')(max_length=8)),
+            ('part_tot_flight_hours', self.gf('django.db.models.fields.PositiveIntegerField')()),
             ('part_tot_landings', self.gf('django.db.models.fields.PositiveIntegerField')()),
             ('part_tot_life', self.gf('django.db.models.fields.PositiveIntegerField')()),
-            ('part_last_in_date', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('part_last_rem_date', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
+            ('part_last_in_date', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
+            ('part_last_rem_date', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
         ))
         db.send_create_signal(u'loz_lol', ['Part'])
 
@@ -84,7 +84,7 @@ class Migration(SchemaMigration):
     models = {
         u'loz_lol.aircraft': {
             'Meta': {'object_name': 'Aircraft'},
-            'ac_flight_hours': ('django.db.models.fields.CharField', [], {'max_length': '8'}),
+            'ac_flight_hours': ('django.db.models.fields.PositiveIntegerField', [], {}),
             'ac_landings': ('django.db.models.fields.PositiveIntegerField', [], {}),
             'ac_marks': ('django.db.models.fields.PositiveIntegerField', [], {}),
             'ac_sn': ('django.db.models.fields.PositiveIntegerField', [], {}),
@@ -94,24 +94,24 @@ class Migration(SchemaMigration):
         u'loz_lol.lifetime_limit': {
             'Meta': {'object_name': 'Lifetime_Limit'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'limit_calendar_days': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'limit_calendar_months': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'limit_calendar_years': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'limit_flight_hours': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'limit_landings': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'limit_calendar_days': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
+            'limit_calendar_months': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
+            'limit_calendar_years': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
+            'limit_flight_hours': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
+            'limit_landings': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
             'limit_type': ('django.db.models.fields.CharField', [], {'default': "'FH'", 'max_length': '2'})
         },
         u'loz_lol.part': {
             'Meta': {'object_name': 'Part'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'part_is_installed': ('django.db.models.fields.BooleanField', [], {}),
-            'part_last_in_date': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
-            'part_last_rem_date': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
+            'part_last_in_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
+            'part_last_rem_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'part_location': ('django.db.models.fields.CharField', [], {'max_length': '5'}),
             'part_number': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['loz_lol.PartList']"}),
             'part_position': ('django.db.models.fields.CharField', [], {'default': "'0'", 'max_length': '1', 'null': 'True', 'blank': 'True'}),
             'part_serial': ('django.db.models.fields.CharField', [], {'max_length': '15', 'blank': 'True'}),
-            'part_tot_flight_hours': ('django.db.models.fields.CharField', [], {'max_length': '8'}),
+            'part_tot_flight_hours': ('django.db.models.fields.PositiveIntegerField', [], {}),
             'part_tot_landings': ('django.db.models.fields.PositiveIntegerField', [], {}),
             'part_tot_life': ('django.db.models.fields.PositiveIntegerField', [], {})
         },

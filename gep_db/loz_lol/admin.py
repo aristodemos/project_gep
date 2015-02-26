@@ -19,10 +19,13 @@ class PartInline(admin.TabularInline):
 
 class LifeInline(admin.TabularInline):
 	model = Part_Life
-	readonly_fields = ['limit_type', 'limit_desc']
+	readonly_fields = ['limit_type', 'limit_desc', 'limit_start']
 
 	def limit_type(self, instance):
 		return instance.lifetime.limit_type
+		
+	def limit_start(self, instance):
+		return instance.lifetime.limit_starts
 
 	def limit_desc(self, instance):
 		return instance.lifetime.lifetime_desc()
@@ -31,7 +34,7 @@ class LifeInline(admin.TabularInline):
 	limit_desc.short_description = 'Years'
 
 #Adding actions to PartAdmin Model
-admin.site.disable_action('delete_selected')
+#admin.site.disable_action('delete_selected')
 
 class PartAdmin(admin.ModelAdmin):
 	def part_description(self, obj):
@@ -63,12 +66,15 @@ class PartAdmin(admin.ModelAdmin):
 		_selected_action 	= forms.CharField(widget=forms.MultipleHiddenInput)
 		aircraft 			= forms.ModelChoiceField(Aircraft.objects, empty_label='None aircraft selected')
 		part_source			= forms.CharField(max_length=100)
+		task_card			= forms.CharField(max_length=100)
 
 	class RemoveItemsForm(forms.Form):
 		_selected_action 	= forms.CharField(widget=forms.MultipleHiddenInput)
 		reason_of_removal	= forms.CharField(max_length=100)
 		date_of_rem			= forms.DateTimeField(initial=datetime.today());
-
+		task_card			= forms.CharField(max_length=100)
+	
+		
 	def Remove_Items(self, request, queryset):
 		form = None
 		if 'apply' in request.POST:
@@ -101,6 +107,9 @@ class PartAdmin(admin.ModelAdmin):
 				if count != total_items_in_queryset:
 					self.message_user(request, "%d were not removed because they ARE NOT installed." % (total_items_in_queryset-count))
 				return HttpResponseRedirect(request.get_full_path())
+			elif 'print' in request.POST:
+				#self.message_user(request, 'Print')
+				return render_to_response('admin/print_ef421.html', {'parts':queryset, 'action': 'Removal of',}, context_instance=RequestContext(request))
 		if not form:
 			form = self.RemoveItemsForm(initial={'_selected_action':request.POST.getlist(admin.ACTION_CHECKBOX_NAME)})
 
@@ -135,18 +144,58 @@ class PartAdmin(admin.ModelAdmin):
 				if count != total_items_in_queryset:
 					self.message_user(request, "%d were not installed because they ARE already installed." % (total_items_in_queryset-count))
 				return HttpResponseRedirect(request.get_full_path())
-
+		elif 'print' in request.POST:
+			#self.message_user(request, 'Print')
+			form = self.InstallItemsForm(request.POST)
+			if form.is_valid():
+				aircraft 	= form.cleaned_data['aircraft']
+				comment_frm = form.cleaned_data['part_source']
+				return render_to_response('admin/print_ef421.html', {'parts':queryset, 'action':'Installation of', 'ac': aircraft, 'today': dd.datetime.now(),}, context_instance=RequestContext(request))
 		if not form:
 			form = self.InstallItemsForm(initial={'_selected_action':request.POST.getlist(admin.ACTION_CHECKBOX_NAME)})
 			#form = PartForm(initial={'_selected_action':request.POST.getlist(admin.ACTION_CHECKBOX_NAME)})
 
 		return render_to_response('admin/multi_installation_form.html', {'parts':queryset, 'installation_form': form,}, context_instance=RequestContext(request))
 		#return render(request, 'admin/multi_installation_form.html', {'parts':queryset, 'installation_form': form,})
+	'''
+	class ReplaceItemsForm(forms.Form):
+		_selected_action	= forms.CharField(widget=forms.MultipleHiddenInput)
+		#First Remove
+		reason_of_removal	= forms.CharField(max_length=100)
+		date_of_rem			= forms.DateTimeField(initial=datetime.today());
+		#Then select parts to install
+		part_to_install		=forms.ModelChoiceField(Part.objects, empty_label='Select part to install')
+	
+	def Replace_Items(self, request, queryset):
+		pass
+		form = None
+		if 'apply' in request.POST:
+			form = self.ReplaceItemsForm(request.POST)
+			if form.is_valid():
+				comment_frm 	= form.cleaned_data['reason_of_removal']
+				removal_date 	= form.cleaned_data['date_of_rem']
+				part_in 		= form.cleaned_data['part_to_install']
+				count = 0
+				total_items_in_queryset = len(queryset)
+				for part in queryset:
+					if part.part_is_installed == False:
+						continue
+					aircraft = Aircraft.objects.get.(ac_marks=part.part.part_location)
+					part.part_is_installed = False
+					part.part_location = "Store"
+					part.part_last_rem_date = removal_date
+					#Save in database the remove record
+					part.save()
+					#insert Removal Record
+					removed_part = item_movement(move_type='RM', rel_aircraft=aircraft, part=part, rel_ac_hours=aircraft.ac_flight_hours, rel_ac_landings=aircraft.ac_landings, comments = "reason of removal: "+comment_frm, date=removal_date)
+					removed_part.save()
+					count += 1
+	'''	
 
 	list_display = ('part_description', 'part_number','part_serial', 'part_location', 'part_remaining_life', 'lifetime', 'expiry_date')
 	list_filter =('part_location',)
 	search_fields = ['part_number__part_number', 'part_number__part_description',]
-	actions = ['Remove_Items', 'Install_Items']
+	actions = ['Remove_Items', 'Install_Items', 'Replace_Items']
 
 class PartListAdmin(admin.ModelAdmin):
 	def lifetime_it(self, obj):
@@ -170,6 +219,7 @@ class PartsInline(admin.StackedInline):
 class LifetimeAdmin(admin.ModelAdmin):
 	list_display = ('lifetime_desc',)
 	inlines =[PartsInline,]
+	list_filter =('limit_starts',)
 
 class AircraftAdmin(admin.ModelAdmin):
 	list_display = ('ac_marks', 'display_flight_hours', 'ac_landings', 'ac_flight_hours', 'ac_sn', 'ac_type')

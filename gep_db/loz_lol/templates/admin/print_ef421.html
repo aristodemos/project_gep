@@ -1,0 +1,93 @@
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>print_ef421</title>
+<style>
+body{
+	font-family:Arial, Helvetica, sans-serif;
+	margin:50px;
+	}
+div {
+	display: inline-block;}
+table {
+	width: 70%;
+	margin-left:15%;
+	}
+#header_left {
+	float:left;}
+#header_right {
+	float:right;}
+.centered{
+	width: 100%;
+	margin:10px 0px 10px 0px;
+	text-align:center;
+	font-weight:bold;
+	}
+ table {
+	 border-spacing:0px;}
+@media print {
+	table {
+	width: auto;
+	margin-left:0;}
+	#print_page {
+		display: none;
+		}
+	}
+</style>
+</head>
+
+<body>
+{% if parts %}
+{% for part in parts %}
+<div id="header_left">ΔΙΟΙΚΗΣΗ ΑΕΡΟΠΟΡΙΑΣ</div>
+<div id="header_right">(ΕΦ 421)</div>
+<div class ="centered" id="pageTitle">{{ action }} {{part.part_number.part_description}}</div>
+<table width="auto" border="1" cellpadding="1">
+  
+  <tr>
+  	<th colspan="2">ΗΜΕΡΟΜΗΝΙΑ: {{ today | date:"D d M Y" }}</th>
+    <th rowspan="2">ΜΟΝΑΔΑ: 460ΜΕΔ</th>
+    <th rowspan="2">ΤΟΠΟΘΕΣΙΑ: ΠΑΦΟΣ</th>
+    <th colspan="2">ΤΥΠΟΣ: AW139</th>
+  </tr>
+ 
+ 
+  
+  <tr>
+    <td colspan="2">ΩΡΕΣ Ε/Π: {{ac.display_flight_hours}}</td>
+    <td>S/N: {{ac.ac_sn}}</td>
+    <td>A.E: {{ac.ac_marks}}</td>
+  </tr>
+  <tr>
+    <td>ΣΥΜΒ. /</td>
+    <td>ΗΜ. ΑΝΕΥΡ. <p>{{ today | date:"D d M Y" }}</p></td>
+    <td>ΑΝΩΜΑΛΙΑ</td>
+    <td>ΑΡΙΘ. ΕΝΤ. ΕΡΓΑΣ. {{count}}</td>
+    <td colspan="2">ΔΙΟΡΘ. ΕΝΕΡΓΕΙΑ</td>
+  </tr>
+  <tr>
+    <td colspan="3"><p>{{part.part_number.part_description}} {{ action }} according to IETP task card
+      {{ task_card }}</p>
+	  <p> P/N: {{ part.part_number }} </p>
+      <p>S/N: {{ part.part_sn }} </p>
+      ΩΡΕΣ ΕΞΑΡΤΗΜΑΤΟΣ: </p></td>
+    <td colspan="3" style="border-bottom:0px solid;"><p></p><p></p><p></p><p></p></td>
+  </tr>
+  <tr>
+    <td colspan="3" rowspan="2">ΒΡΕΘΗΚΕ ΑΠΟ: ΓΕΠ</td>
+    <td style="border-top: 0px solid;">&nbsp;</td>
+    <td colspan="2" style="border-top:2px solid">ΗΜΕΡ. ΔΙΟΡΘΩΣΗΣ: <p></td>
+  </tr>
+  <tr>
+    <td>ΔΙΟΡΘΩΘΗΚΕ ΑΠΟ: <p></td>
+    <td colspan="2">ΕΠΙΘΕΩΡΗΘΗΚΕ ΑΠΟ:<p></td>
+  </tr>
+</table>
+{% endfor %}
+{% endif %}
+<div class="centered" id="footer">ΜΗΤΡΩΟ ΣΥΝΤΗΡΗΣΗΣ - ΔΙΑΠΙΣΤΩΘΕΙΣΕΣ ΑΝΩΜΑΛΙΕΣ / ΔΙΟΡΘΩΤΙΚΕΣ ΕΝΕΡΓΕΙΕΣ</div>
+<div id = "print_page">
+<a href="#" onClick="return window.print();">Print this page</a>
+</div>
+</body>
+

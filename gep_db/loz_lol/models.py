@@ -9,6 +9,7 @@ class Aircraft(models.Model):
 	ac_type			= models.CharField(max_length = 10)
 	ac_sn			= models.PositiveIntegerField()
 	ac_marks		= models.PositiveIntegerField()
+	date_in			= models.DateTimeField()
 	#Flight Hours PositiveInteger in minutes
 	ac_flight_hours = models.PositiveIntegerField()
 	ac_landings		= models.PositiveIntegerField()
@@ -18,6 +19,9 @@ class Aircraft(models.Model):
 
 	def display_flight_hours(self):
 		return str(self.ac_flight_hours/60)+'.'+str(self.ac_flight_hours%60)
+	
+	def disp_date_in(self):
+		return self.date_in
 
 class Lifetime_Limit(models.Model):
 	DISCARD = 'DS'
@@ -30,7 +34,17 @@ class Lifetime_Limit(models.Model):
 		(FLIGHTHOURS, 'Flight Hours'),
 		(RETIREMENT, 'Retirement'),
 	)
+	LAST_OH = 'LO'
+	DATE_MANUF = 'MD'
+	LAST_IN = 'IN'
+	START_LIFE_FROM_CHOICES = (
+		(LAST_OH, 'last_overhaul'),
+		(DATE_MANUF, 'date_of_manufacture'),
+		(LAST_IN, 'last_installation'),
+	)
 	limit_type				= models.CharField(max_length=2, choices=LIFETIME_TYPE_CHOICES, default=FLIGHTHOURS)
+	#Start Counting from Date of manufacture or from last overhaul
+	limit_starts			= models.CharField(max_length=2, choices=START_LIFE_FROM_CHOICES, blank=True, null=True)
 	limit_calendar_years	= models.PositiveIntegerField(default=0)
 	limit_calendar_months	= models.PositiveIntegerField(default=0)
 	limit_calendar_days		= models.PositiveIntegerField(default=0)
@@ -60,6 +74,7 @@ class Lifetime_Limit(models.Model):
 			descsription_to_return += str(self.limit_landings)+"LDS "
 		else:
 			descsription_to_return +="0LDS"
+		descsription_to_return = descsription_to_return+ "____" + str(self.limit_starts)
 
 		#+" "+str(self.limit_calendar_months)+" M"+" "+str(self.limit_calendar_days)+" D")
 		return unicode(descsription_to_return)
@@ -80,6 +95,7 @@ class PartList(models.Model):
 class Part_Life(models.Model):
 	part_number 	= models.ForeignKey(PartList)
 	lifetime 		= models.ForeignKey(Lifetime_Limit)
+	
 
 class Part(models.Model):
 	#part_description	= models.CharField(max_length = 30, null=True, blank=True)
@@ -102,33 +118,47 @@ class Part(models.Model):
 
 	# +++++++++++++++++++++++++++++++DateTimeField++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	part_last_in_date		= models.DateTimeField(auto_now=False, auto_now_add=False, null = True, blank = True)#++
-	# +++++++++++++++++++++++++++++++DateTimeField++++++++++++++                                             #++
 	part_last_rem_date		= models.DateTimeField(auto_now=False, auto_now_add=False, null = True, blank = True)#++
+	part_date_of_manuf		= models.DateTimeField(auto_now=False, auto_now_add=False, null = True, blank = True)
+	part_last_oh			= models.DateTimeField(auto_now=False, auto_now_add=False, null = True, blank = True)
 	#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	def expected_expiry(self):
 		lf 		= self.part_number.lifetime.values_list('limit_calendar_years', 'limit_calendar_months', 'limit_calendar_days')
 		lf_type = self.part_number.lifetime.values('limit_type')
-
-		if len(lf_type) > 1:
-			if lf[0][0]>0 or lf[0][1]>0 or lf[0][2]>0:
-				days_delta = lf[0][0]*365 + lf[0][1]*30 + lf[0][2] - self.part_tot_life
-				date_out = datetime.now()+timedelta(days=days_delta)
-
-			if lf[1][0]>0 or lf[1][1]>0 or lf[1][2]>0:
-				days_delta = lf[0][0]*365 + lf[0][1]*30 + lf[0][2] - self.part_tot_life
-				date_out2 = datetime.now()+timedelta(days=days_delta)
-				return str(min(date_out, date_out2).strftime("%Y/%m/%d"))
-
-		elif len(lf_type) == 1:
-			if lf[0][0]>0 or lf[0][1]>0 or lf[0][2]>0:
-				days_delta = lf[0][0]*365 + lf[0][1]*30 + lf[0][2] - self.part_tot_life
-				date_out = datetime.now()+timedelta(days=days_delta)
-				return str(date_out.strftime("%Y/%m/%d"))
-			else:
-				return self.part_rem_fh()
+		lf_start= self.part_number.lifetime.values('limit_starts')
+		
+		if self.part_is_installed:
+			rel_ac_id = Aircraft.objects.filter(ac_marks=self.part_location).values("id")[0]["id"]
+			ref_date = Aircraft.objects.get(pk=rel_ac_id).date_in
+			
 		else:
-			return None;
+			ref_date = datetime.now()
+		days_delta =[]	
+		for i in range(0, len(lf_type)):
+			if lf[i][0]>0 or lf[i][1]>0 or lf[i][2]>0 :
+				if lf_start[i]["limit_starts"] == None:
+					days_delta.append( datetime.now()+ timedelta(days=lf[i][0]*365 + lf[i][1]*30 + lf[i][2] - self.part_tot_life) )
 
+				elif lf_start[i]["limit_starts"] == 'MD':
+					days_delta.append( timedelta(days=lf[i][0]*365 + lf[i][1]*30 + lf[i][2] ) + (self.part_date_of_manuf if self.part_date_of_manuf else ref_date))
+					print "MANUF"
+					print days_delta
+				elif lf_start[i]["limit_starts"] == 'LO':
+					days_delta.append( timedelta(days=lf[i][0]*365 + lf[i][1]*30 + lf[i][2] ) + (self.part_last_oh if self.part_last_oh else ref_date ))
+					print "LO"
+				elif lf_start[i]["limit_starts"] == 'IN':
+					days_delta.append( timedelta(days=lf[i][0]*365 + lf[i][1]*30 + lf[i][2] ) + (self.part_last_in_date if self.part_last_in_date else ref_date ))
+					print "INstallation"
+					print days_delta
+			
+		#return days_delta
+			
+		if len(days_delta) > 0:
+			date_out = min(days_delta)
+			return str(date_out.strftime("%Y/%m/%d"))
+		else:
+			return self.part_rem_fh()
+			
 
 	def part_rem_fh(self):
 		lf 		= self.part_number.lifetime.values_list('limit_flight_hours')
@@ -145,13 +175,13 @@ class Part(models.Model):
 		pass
 
 	def life_limit_tp(self):
-		lf = self.part_number.lifetime.values_list('limit_type')
-		if len(lf) > 1:
-			return (str(lf[0])[3:5]+" - "+str(lf[1])[3:5])
-		if len(lf) > 0:
-			return str(lf[0])[3:5]
-		else:
-			return ''
+		out = []
+		return_str = ''
+		for i in self.part_number.lifetime.values_list('limit_type'):
+			 out.append(str(i)[3:5])
+		for i in set(out):
+			return_str += i+" "
+		return return_str
 
 	def part_remaining_life(self):
 		lf = self.part_number.lifetime.values_list('limit_flight_hours', 'limit_landings', 'limit_calendar_years', 'limit_calendar_months', 'limit_calendar_days')
