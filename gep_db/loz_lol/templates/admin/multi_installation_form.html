@@ -5,10 +5,9 @@
 <p>Select Aircraft to install into:</p>
 
 <form action="" method="post">{% csrf_token %}
-
+	
     <p>{{ installation_form }}</p>
-
-    <p>These parts will be installed to the selected Aircraft:</p>
+	    <p>These parts will be installed to the selected Aircraft:</p>
     <ul>
         {% for part in parts %}
             <p>

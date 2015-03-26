@@ -26,6 +26,7 @@ table {
  table {
 	 border-spacing:0px;}
 @media print {
+	.page-break	{ display: block; page-break-before: always; }
 	table {
 	width: auto;
 	margin-left:0;}
@@ -33,19 +34,23 @@ table {
 		display: none;
 		}
 	}
+
+
 </style>
 </head>
 
 <body>
-{% if parts %}
-{% for part in parts %}
+
 <div id="header_left">ΔΙΟΙΚΗΣΗ ΑΕΡΟΠΟΡΙΑΣ</div>
 <div id="header_right">(ΕΦ 421)</div>
+
+{% if parts %}
+{% for part in parts %}
 <div class ="centered" id="pageTitle">{{ action }} {{part.part_number.part_description}}</div>
 <table width="auto" border="1" cellpadding="1">
   
   <tr>
-  	<th colspan="2">ΗΜΕΡΟΜΗΝΙΑ: {{ today | date:"D d M Y" }}</th>
+  	<th colspan="2">ΗΜΕΡΟΜΗΝΙΑ:  {% now "SHORT_DATE_FORMAT" %}</th>
     <th rowspan="2">ΜΟΝΑΔΑ: 460ΜΕΔ</th>
     <th rowspan="2">ΤΟΠΟΘΕΣΙΑ: ΠΑΦΟΣ</th>
     <th colspan="2">ΤΥΠΟΣ: AW139</th>
@@ -60,17 +65,21 @@ table {
   </tr>
   <tr>
     <td>ΣΥΜΒ. /</td>
-    <td>ΗΜ. ΑΝΕΥΡ. <p>{{ today | date:"D d M Y" }}</p></td>
+    <td>ΗΜ. ΑΝΕΥΡ. <p> {% now "SHORT_DATE_FORMAT" %}</p></td>
     <td>ΑΝΩΜΑΛΙΑ</td>
     <td>ΑΡΙΘ. ΕΝΤ. ΕΡΓΑΣ. {{count}}</td>
     <td colspan="2">ΔΙΟΡΘ. ΕΝΕΡΓΕΙΑ</td>
   </tr>
   <tr>
-    <td colspan="3"><p>{{part.part_number.part_description}} {{ action }} according to IETP task card
-      {{ task_card }}</p>
+    <td colspan="3"><p>{{part.part_number.part_description}} {{ action }} according to IETP task card:
+      <p>{{ task_ref }}</p>
+	  </p>
+	  
 	  <p> P/N: {{ part.part_number }} </p>
-      <p>S/N: {{ part.part_sn }} </p>
-      ΩΡΕΣ ΕΞΑΡΤΗΜΑΤΟΣ: </p></td>
+      <p>S/N: {{ part.part_serial }} </p>
+      <p>ΩΡΕΣ ΕΞΑΡΤΗΜΑΤΟΣ: {{ part.display_tot_fh }}</p>
+	  ΠΗΓΗ: {{ source }}
+	  </p></td>
     <td colspan="3" style="border-bottom:0px solid;"><p></p><p></p><p></p><p></p></td>
   </tr>
   <tr>

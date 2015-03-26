@@ -61,13 +61,6 @@ class PartAdmin(admin.ModelAdmin):
 		else:
 			return ''
 
-	class InstallItemsForm(forms.Form):
-		PART_POSITION_CHOICES = (('0', 'n/a'), ('1', 'Left'),('2', 'Right'), ('3', 'Hoist'), ('4', 'Main'), ('5', 'Secondary'))
-		_selected_action 	= forms.CharField(widget=forms.MultipleHiddenInput)
-		aircraft 			= forms.ModelChoiceField(Aircraft.objects, empty_label='None aircraft selected')
-		part_source			= forms.CharField(max_length=100)
-		task_card			= forms.CharField(max_length=100)
-
 	class RemoveItemsForm(forms.Form):
 		_selected_action 	= forms.CharField(widget=forms.MultipleHiddenInput)
 		reason_of_removal	= forms.CharField(max_length=100)
@@ -115,7 +108,12 @@ class PartAdmin(admin.ModelAdmin):
 
 		return render_to_response('admin/multi_removal_form.html', {'parts':queryset, 'removal_form': form,}, context_instance=RequestContext(request))
 
-
+	class InstallItemsForm(forms.Form):
+		PART_POSITION_CHOICES = (('0', 'n/a'), ('1', 'Left'),('2', 'Right'), ('3', 'Hoist'), ('4', 'Main'), ('5', 'Secondary'))
+		_selected_action 	= forms.CharField(widget=forms.MultipleHiddenInput)
+		aircraft 			= forms.ModelChoiceField(Aircraft.objects, empty_label='None aircraft selected')
+		part_source			= forms.CharField(max_length=100, required=False)
+		task_card			= forms.CharField(max_length=100, required=False)
 
 	def Install_Items(self, request, queryset):
 		form = None
@@ -150,7 +148,9 @@ class PartAdmin(admin.ModelAdmin):
 			if form.is_valid():
 				aircraft 	= form.cleaned_data['aircraft']
 				comment_frm = form.cleaned_data['part_source']
-				return render_to_response('admin/print_ef421.html', {'parts':queryset, 'action':'Installation of', 'ac': aircraft, 'today': dd.datetime.now(),}, context_instance=RequestContext(request))
+				task_card	= form.cleaned_data['task_card']
+				part_source = form.cleaned_data['part_source']
+				return render_to_response('admin/print_ef421.html', {'parts':queryset, 'action':'Installation of','task_ref': task_card,'ac': aircraft, 'source': part_source,}, context_instance=RequestContext(request))
 		if not form:
 			form = self.InstallItemsForm(initial={'_selected_action':request.POST.getlist(admin.ACTION_CHECKBOX_NAME)})
 			#form = PartForm(initial={'_selected_action':request.POST.getlist(admin.ACTION_CHECKBOX_NAME)})
@@ -160,10 +160,10 @@ class PartAdmin(admin.ModelAdmin):
 	'''
 	class ReplaceItemsForm(forms.Form):
 		_selected_action	= forms.CharField(widget=forms.MultipleHiddenInput)
-		#First Remove
+		#First Display the parts to Remove
 		reason_of_removal	= forms.CharField(max_length=100)
 		date_of_rem			= forms.DateTimeField(initial=datetime.today());
-		#Then select parts to install
+		#Then select parts to Install
 		part_to_install		=forms.ModelChoiceField(Part.objects, empty_label='Select part to install')
 	
 	def Replace_Items(self, request, queryset):
